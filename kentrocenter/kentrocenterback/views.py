@@ -10,4 +10,4 @@ from django.contrib.auth.models import User
 
 # TOOO: Home should be a login form!
 def home(request):
-    pass
+    return render(request, 'base/login.html')
