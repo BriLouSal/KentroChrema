@@ -11,20 +11,51 @@
 </head>
     <body>
         <!-- Navbar -->
-        <div class="navbar flex flex-row gap-3 items-center justify-center py-2.5 px-5  no-underline text-bold  text-2xl">
-            <a href="{% url 'home' %}" >Home</a>
+        <!-- <div class="navbar flex flex-row gap-3 items-center justify-center py-2.5 px-5  no-underline text-bold  text-2xl">
+            <a href="{% url 'home' %}" class="" >Home</a>
 
-        </div>
+        </div> -->
 
 
         <!-- Form Container we want the container to be full screen since we want to have a 50/50 UI where we have info and intro and other side is signupform -->
-        <section class="flex flex-col lg:flex-row min-h-screen">
+        <div class="flex flex-col lg:flex-row min-h-screen">
             <!-- Half -->
+             <section class="bg-green-300 flex flex-col w-5/12"> 
+
+             </section>
+
+             <main class="bg-gradient-to-br from-blue-600 to-indigo-800 flex flex-col w-7/12 items-center justify-center">
+                <!-- Create the form here -->
+                 <div class="border-none flex flex-row w-full max-w-[500px] h-3/4 items-center justify-center">
+                    <form action="'/" method="POST" class="w-full flex flex-col items-center">
+                        <!-- Wrapper for the text, so we can adjust it accordingly -->
+                        <div class="w-full flex flex-col items-center gap-4 mb-4 text-center">
+                            <label for="email" class="text-white font-bold text-2xl">Email</label>
+                            <input type="email" id="email" placeholder="Enter your Email" class="text-center" required>
+                            
+                            <label for="Username" class="text-white font-bold text-2xl">Username</label>
+                            <input type="username" id="username" placeholder="Enter your Username" class="text-center" required>
+                           
+                            <label for="Username" class="text-white font-bold text-2xl">Password</label>
+                            <input type="username" id="username" placeholder="Enter your Password" class="text-center" required>
+                            
+                                
+                            
+                        </div>
+
+
+
+                    </form>
+                 </div>
+
+             </main>
+
+             
             
 
 
 
-        </section>
+            </div>
         
     </body>
 </html>
