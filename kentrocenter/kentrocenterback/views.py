@@ -58,4 +58,4 @@ def home(request):
         redirect('signup')
 
 def login(request):
-    pass
+    return render(request, 'base/login.html')
