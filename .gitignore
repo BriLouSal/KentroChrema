@@ -1,3 +1,5 @@
 kentrocenter/db.sqlite3
 kentrocenter/kentrocenterback/.env
 .venv
+kentrocenter/kentrocenterback/KOSAI.py
+kentrocenter/kentrocenter/settings.py

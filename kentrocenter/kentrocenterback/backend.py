@@ -11,7 +11,7 @@ class EmailBackend(BaseBackend):
     def authenticate(self, request, username = None, password = None, **kwargs):
         email = username or kwargs.get('email')
         if email is None:
-            return None # This is my version of ensuring that email is required for login
+            return None # This is my version of ensuring that email is required for signup
         else:
             try:
                 user = User.objects.get(Q(username__iexact=email) | Q(email__iexact=email))

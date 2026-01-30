@@ -1,5 +1,7 @@
 from django.db import models
-
+from django.contrib.auth.models import User # The "ID Card"
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 
@@ -8,13 +10,13 @@ from django.db import models
 
 
 class Profile(models.Model):
-    username = models.CharField(max_length=100, null=True)
-    email = models.EmailField(null=True)
-    password = models.CharField(max_length=100)
-    created = models.DateField(auto_now_add=True)
-    # 
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
 
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
