@@ -8,7 +8,9 @@ urlpatterns  = [
     path('home/', views.home, name='home'),
     path('login/' , views.login, name='login'),
     path('verification/', views.verification_page, name='verify'),
-    
+
+    # API and Login methods
+    path('accounts/', include('allauth.urls')),
 ]
 
 if settings.DEBUG:

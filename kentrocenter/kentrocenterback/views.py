@@ -37,18 +37,12 @@ def signup_page(request):
             user.is_authenticated(False)
             user.save()
 
-
-
-
-
-
-
-
             return redirect('verify')
 
 
 
     return render(request, 'base/signup.html')
+# This will be our API call towards Google for users to login via this method
 
 
 
@@ -58,7 +52,10 @@ def verification_page(request):
     pass
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
-    pass
+    if request.user.is_authenticated:
+        pass
+    else: 
+        redirect('signup')
 
 def login(request):
     pass
