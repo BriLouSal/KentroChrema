@@ -8,11 +8,11 @@ KentroCherma is a Python-powered centralized investment platform that allows use
 
 
 # Data Used: 
-* Alpaca, and Yahoo Finance
+* Alpaca, and Yahoo Finance will be used for KentroCherma due to its developer-friendly options that allows me to deploy the app really fast.
 
 # API USED:
 * SnapTrade API will allow us to connect investment platforms, whilst Anthropic API will be used to summarize information of the stock that will utilize Yahoo Finance dataset which the investors can use to make informed decisions on their investments.
-* 
+  
 
 
 
