@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import logout, authenticate
+from django.shortcuts import render, redirect, mess
+from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.contrib import messages
 
 
 # Create your views here.
+
+# from snaptrade import dk
 
 
 # REFERENCE: https://docs.snaptrade.com/docs/getting-started
@@ -32,10 +35,13 @@ def signup_page(request):
             redirect("signup")
         # Then we should redirect the user to verification code and match it email
         else:
-            # We should also build a absoloute url for security purposes, 
+            # We should also build an absoloute url for security purposes, 
             user = User.objects.create(username=username, password=password, email=email)
             user.is_authenticated(False)
             user.save()
+
+
+
 
             return redirect('verify')
 
@@ -52,10 +58,26 @@ def verification_page(request):
     pass
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
-    if request.user.is_authenticated:
-        pass
-    else: 
+    if not request.user.is_authenticated:
         redirect('signup')
 
-def login(request):
+
+    
+
+
+def loginpage(request):
+    if request.method == "POST":
+        # This is how we'll login right
+
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = authenticate(request, email=email, password=password) 
+        if user is None:
+            messages.error(request, "This user does not exist, please signup or try again!")
+            return redirect('login')
+        login(request, user)
+    
+        redirect('home')
+        
     return render(request, 'base/login.html')

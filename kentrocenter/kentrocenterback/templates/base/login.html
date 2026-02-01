@@ -20,10 +20,23 @@
         <!-- Form Container we want the container to be full screen since we want to have a 50/50 UI where we have info and intro and other side is signupform -->
         <div class="flex flex-col lg:flex-row min-h-screen">
             <!-- Half -->
-             <section class= "bg-gradient-to-br from-blue-400 to-indigo-800 flex flex-col w-5/12"> 
+             
+             <section class= "bg-gradient-to-br from-blue-300 to-purple-500 w-5/12  flex flex-col justify-between p-10"> 
+                <!-- Intro -->
+                <div class="flex flex-row gap-3 items-start justify-start">
+                <div class="top-[150px]">
+                    <p class="text-white text-xl font-semibold">Kentro Cherma</p>
+                    <p class="text-white mt-2">A Centeralized Investment App</p>
+                    <p class="text-blue-white mb-4 font-bold">Why us?</p>
+                </div>
+                
                 <!-- Cards -->
-                 <div>
-                    <div></div>
+                 
+                 <div class="grid grid-cols-1 gap-6 place-items-center w-full">
+                    <!-- Card -->
+                    <div class="bg-gradient-to-br from-blue-300 to-purple-400 block max-w-sm p-6 border border-default rounded-base shadow-xs hover:bg-neutral-secondary-medium border-none rounded-xl h-[100px]  w-full items-center top-[150px]">
+                        <p class="text-2xl text-bold text-white text-center">Lorem ipsum dolor sit!</p>
+                    </div>
                  </div>
 
              </section>
@@ -37,11 +50,9 @@
                             <label for="email" class="text-black font-bold text-2xl items-start justify-start">Email</label>
                             <input type="email" id="email" placeholder="Enter your Email" class="text-center text-black rounded 2xl h-full w-full bg-gray-100" required>
                             
-                            <label for="Username" class="text-black font-bold text-2xl">Username</label>
-                            <input type="username" id="username" placeholder="Enter your Username" class="text-center text-black w-full rounded-2xl h-3/4 bg-gray-100" required>
                            
-                            <label for="Username" class="text-black font-bold text-2xl">Password</label>
-                            <input type="username" id="username" placeholder="Enter your Password" class="text-center text-black bg-gray-100 round-2xl w-full " required>
+                            <label for="Password" class="text-black font-bold text-2xl">Password</label>
+                            <input type="password" id="password" placeholder="Enter your Password" class="text-center text-black bg-gray-100 round-2xl w-full " required>
 
                             <button type="submit" class="text-white text-2xl bg-blue-500 w-full hover:bg-blue-800 hover:text-gray-400 rounded-2xl h-3/4">Login </button>
                             

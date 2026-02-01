@@ -6,7 +6,7 @@ from . import views
 urlpatterns  = [
     path('', views.signup_page, name='signup'),
     path('home/', views.home, name='home'),
-    path('login/' , views.login, name='login'),
+    path('login/' , views.loginpage, name='login'),
     path('verification/', views.verification_page, name='verify'),
 
     # API and Login methods
