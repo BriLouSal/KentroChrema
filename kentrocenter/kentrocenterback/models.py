@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User # The "ID Card"
 from django.db.models.signals import post_save
+
 from django.dispatch import receiver
+from django.core.mail import send_mail
 # Create your models here.
 
 
@@ -23,9 +25,13 @@ class Profile(models.Model):
         return self.username
 
 
-"""sumary_line
 
-Keyword arguments:
-argument -- description
-Return: return_description
-"""
+class EmailVerificationCode(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # 6 digits
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return super().__str__()
