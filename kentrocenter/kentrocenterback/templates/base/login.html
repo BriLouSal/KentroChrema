@@ -44,7 +44,10 @@
              <main class=" bg-white flex flex-col w-7/12 items-center justify-center">
                 <!-- Create the form here -->
                  <div class="border-none flex flex-row w-full max-w-[500px] h-3/4 items-center justify-center">
-                    <form action="'/" method="POST" class="w-full flex flex-col items-center">
+                    <form action="{% url 'login'%}" method="POST" class="w-full flex flex-col items-center">
+
+                        {% csrf_token %}
+
                         <!-- Wrapper for the text, so we can adjust it accordingly -->
                         <div class="w-full flex flex-col items-center gap-6 mb-4 text-center">
                             <label for="email" class="text-black font-bold text-2xl items-start justify-start">Email</label>

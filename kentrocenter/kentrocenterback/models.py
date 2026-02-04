@@ -22,7 +22,7 @@ class Profile(models.Model):
     snaptrade_user_id = models.CharField(max_length=255, null=True, blank=True)
     snaptrade_user_secret = models.CharField(max_length=255, null=True, blank=True)
     def __str__(self):
-        return self.username
+        return self.user.username
 
 
 
@@ -34,4 +34,4 @@ class EmailVerificationCode(models.Model):
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):
-        return super().__str__()
+        return f"{self.user.email} - {self.code}"

@@ -26,7 +26,7 @@ from random import randint
 def signup_page(request):
     # If the user is already logged in, we'll just put them redirect them to the portfolio setting.
     if request.user.is_authenticated:
-        redirect('home')
+        return redirect('home')
 
     # Signup
     if request.method == "POST":
@@ -41,9 +41,9 @@ def signup_page(request):
         # Then we should redirect the user to verification code and match it email
         else:
             # We should also build an absoloute url for security purposes, 
-            user = User.objects.create(username=username, password=password, email=email)
+            user = User.objects.create_user(username=username, password=password, email=email)
             # They're not verified, and they'll have to do it through the built in url
-            user.is_authenticated(False)      
+            user.is_active = False
             user.save()
 
 
@@ -59,12 +59,11 @@ def signup_page(request):
 
             send_mail(
                 subject=SUBJECT,
+                from_email="no-reply@kentrocherma.com",
                 message=MESSAGE,
-                recipient_list=email,
+                recipient_list=[email],
                 fail_silently=False,
             )
-
-
 
 
 
@@ -82,18 +81,26 @@ def signup_page(request):
 def verification_page(request):
     # This is where we'll send the verification code
     # and we also need the verification code here to match with user's connected email.
+    code = request.POST.get('code')
     if request.method == 'POST':
         try:
-            pass
+            verification = EmailVerificationCode.objects.get(code=code)
+            user = verification.user
+            user.save()
+            # Then log them in
+            verification.delete()
+            login(request, user)
+            return redirect('home')
         # Signup would be required as if someone tried to do a url /verification/ it would have a messages.error
         except EmailVerificationCode.DoesNotExist:
             messages.error(request, "Verification Code does not Exist, Please Signup")
-            redirect('signup')
+            return redirect('signup')
     
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
     if not request.user.is_authenticated:
-        redirect('signup')
+        return redirect('signup')
+
 
 
     
@@ -112,6 +119,6 @@ def loginpage(request):
             return redirect('login')
         login(request, user)
 
-        redirect('home')
+        return redirect('home')
         
     return render(request, 'base/login.html')
