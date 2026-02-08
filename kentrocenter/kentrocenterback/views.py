@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.contrib import messages
 from .models import EmailVerificationCode, Profile
 from django.core.mail import send_mail
@@ -34,10 +34,11 @@ def signup_page(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        if User.objects.filter(email=email).exists():
-            return redirect("verify")
-        elif User.objects.filter(username=username).exists():
-            return redirect("verify")
+        user = User.objects.filter(email=email).first()
+        if user:
+            if user.is_active:
+                return redirect('login')
+
         # Then we should redirect the user to verification code and match it email
         else:
             # We should also build an absoloute url for security purposes, 
@@ -54,30 +55,36 @@ def signup_page(request):
                 return redirect("login")
 
 
-            # So we wanna generate the verification code
-            generated_code = str(randint(100000, 999999))
-            # After that we wanna create the model of email verification and we can do a if-statement to check if the email verification is matched with the user
-            EmailVerificationCode.objects.update_or_create(user=user, defaults={'code': generated_code, 'is_verified': False})
+        # So we wanna generate the verification code
+        generated_code = str(randint(100000, 999999))
+        # After that we wanna create the model of email verification and we can do a if-statement to check if the email verification is matched with the user
+        EmailVerificationCode.objects.update_or_create(user=user, defaults={'code': generated_code, 'is_verified': False})
 
-            request.session['verify_user_id'] = user.id
+        request.session['verify_user_id'] = user.id
+
+        try:
 
             send_mail(
                 subject="Verify your code",
-                message=f"Hello {username}, your verification code is {generated_code}",
+                message=f"Hello {user.username}, your verification code is {generated_code}",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
                 fail_silently=False,
             )
 
             return redirect('verify')
-
-
+        except Exception as e:
+            messages.error(request, f"Email failed: {e}")
+            return redirect('signup')
+            
 
     return render(request, 'base/signup.html')
 # This will be our API call towards Google for users to login via this method
 
+# TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
 
-
+def email_google_activation(request):
+    pass
 # Create a views where the user can enter their StockPortfolio signup to Wealthsimple, Shakepay, etc.
 
 def verification_page(request):
