@@ -3,10 +3,10 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.contrib import messages
-from .models import EmailVerificationCode
+from .models import EmailVerificationCode, Profile
 from django.core.mail import send_mail
 from random import randint
-
+from django.conf import settings
 # Create your views here.
 
 # from snaptrade import dk
@@ -35,9 +35,9 @@ def signup_page(request):
         password = request.POST.get('password')
 
         if User.objects.filter(email=email).exists():
-            redirect("signup")
+            return redirect("verify")
         elif User.objects.filter(username=username).exists():
-            redirect("signup")
+            return redirect("verify")
         # Then we should redirect the user to verification code and match it email
         else:
             # We should also build an absoloute url for security purposes, 
@@ -46,26 +46,28 @@ def signup_page(request):
             user.is_active = False
             user.save()
 
+            profile = Profile.objects.create(
+                user=user,
+                is_verified=False
+            )
+            if user and user.is_active:
+                return redirect("login")
+
 
             # So we wanna generate the verification code
             generated_code = str(randint(100000, 999999))
             # After that we wanna create the model of email verification and we can do a if-statement to check if the email verification is matched with the user
             EmailVerificationCode.objects.update_or_create(user=user, defaults={'code': generated_code, 'is_verified': False})
 
-            verify_url =  request.build_absolute_uri(reverse('verify'))
-
-            SUBJECT  = "Verify your code"
-            MESSAGE = f"Hello {username} your Verification code is {generated_code}. Enter it here at {verify_url}",
+            request.session['verify_user_id'] = user.id
 
             send_mail(
-                subject=SUBJECT,
-                from_email="no-reply@kentrocherma.com",
-                message=MESSAGE,
+                subject="Verify your code",
+                message=f"Hello {username}, your verification code is {generated_code}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
                 fail_silently=False,
             )
-
-
 
             return redirect('verify')
 
@@ -92,14 +94,19 @@ def verification_page(request):
             login(request, user)
             return redirect('home')
         # Signup would be required as if someone tried to do a url /verification/ it would have a messages.error
+
+
         except EmailVerificationCode.DoesNotExist:
             messages.error(request, "Verification Code does not Exist, Please Signup")
             return redirect('signup')
+    return render(request, 'base/verification.html')
     
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
     if not request.user.is_authenticated:
         return redirect('signup')
+    if not request.user.profile.is_verified:
+        return redirect('verify')
 
 
 
@@ -118,6 +125,8 @@ def loginpage(request):
             messages.error(request, "This user does not exist, please signup or try again!")
             return redirect('login')
         login(request, user)
+        if not request.user.is_authenticated or request.user.is_active:
+            return redirect('signup')
 
         return redirect('home')
         

@@ -18,7 +18,9 @@ class EmailBackend(BaseBackend):
                 # This will ensure that our password is secure "password123" would
                 # turn into a convoluted mess
 
-                if user.check_password(password): 
+                if user.check_password(password):
+                    if not user.is_active:
+                        return None
                     return user
                 else:
                     return None
