@@ -4,6 +4,8 @@ from django.db.models.signals import post_save
 
 from django.dispatch import receiver
 from django.core.mail import send_mail
+from django.utils import timezone
+from datetime import timedelta
 # Create your models here.
 
 
@@ -22,7 +24,7 @@ class Profile(models.Model):
     snaptrade_user_id = models.CharField(max_length=255, null=True, blank=True)
     snaptrade_user_secret = models.CharField(max_length=255, null=True, blank=True)
     def __str__(self):
-        return self.user.username
+        return self.user.username or self.user.email
 
 
 
@@ -32,6 +34,12 @@ class EmailVerificationCode(models.Model):
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
-
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(minutes=10)
     def __str__(self):
         return f"{self.user.email} - {self.code}"
+    
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)

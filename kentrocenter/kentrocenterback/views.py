@@ -8,18 +8,54 @@ from django.core.mail import send_mail
 from random import randint
 from django.conf import settings
 # Create your views here.
+from django.db.models.signals import post_save
 
-# from snaptrade import dk
+
+from snaptrade.api_client import SnapTradeAPIClient
+
+
+from allauth.socialaccount.signals import social_account_added
+
+import uuid
+
+from django.dispatch import receiver
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 
 # REFERENCE: https://docs.snaptrade.com/docs/getting-started
 # https://pypi.org/project/snaptrade-python-sdk/
 
 
-
+CLIENT_ID = os.getenv('CLIENT_ID')
+SECRET_KEY = os.getenv('SECRET_KEY')
+SnapTradeAPI_ACTIVATE  = SnapTradeAPIClient(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 # Plans: First we need to have our signup/authentication systems ready at any cost,
 
-# TOOO: Home should be a signup form!
+
+
+# Create a autosign up to SnapTrade
+def snaptrade_account_register(user):
+    # If the user exist just return, so we don't get duplicate
+    if user.profile.snaptrade_user_id:
+        return
+    snaptrade_user_id = f"user_{user.id}_{uuid.uuid4().hex[:8]}"
+    response = SnapTradeAPI_ACTIVATE.authentication.register_snap_trade_user(
+    user_id=snaptrade_user_id
+)
+    user.profile.snaptrade_user_id = snaptrade_user_id
+    user.profile.snaptrade_user_secret = response.user_secret
+    user.profile.save()
+
+
+
+
+
+
+
 
 
 
@@ -83,22 +119,55 @@ def signup_page(request):
 
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
 
-def email_google_activation(request):
-    pass
+@receiver(social_account_added)
+def email_google_activation(request, sociallogin):
+    # Create the account for them and create profile
+    user = sociallogin.user
+    # Create the profile
+    profile, created = Profile.objects.get_or_create(user=user)
+    profile.is_verified = True
+    profile.save()
+
+
 # Create a views where the user can enter their StockPortfolio signup to Wealthsimple, Shakepay, etc.
+
+
 
 def verification_page(request):
     # This is where we'll send the verification code
     # and we also need the verification code here to match with user's connected email.
-    code = request.POST.get('code')
+    
     if request.method == 'POST':
+        code = request.POST.get('code')
+        user_id = request.session.get('verify_user_id')
+        # If empty redirect to signup
+        if not user_id:
+            redirect('signup')
+    
         try:
-            verification = EmailVerificationCode.objects.get(code=code)
+            verification = EmailVerificationCode.objects.get(
+                user_id=user_id,
+                code=code
+            )
+            # Check if it's expired if it is it will redirect to signup
+            if verification.is_expired():
+                verification.delete()
+                messages.error(request, "Verification code expired.")
+                return redirect('signup')
             user = verification.user
+
+            user.is_active = True
             user.save()
-            # Then log them in
+
+            user.profile.is_verified = True
+            user.profile.save()
+
             verification.delete()
+            # Regiseter for it after the user has verified
+            snaptrade_account_register(user)
+
             login(request, user)
+            
             return redirect('home')
         # Signup would be required as if someone tried to do a url /verification/ it would have a messages.error
 
