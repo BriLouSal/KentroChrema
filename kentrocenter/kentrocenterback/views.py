@@ -17,7 +17,7 @@ from snaptrade.api_client import SnapTradeAPIClient
 from allauth.socialaccount.signals import social_account_added
 
 import uuid
-
+from yahooquery import Ticker, Screener
 from django.dispatch import receiver
 from dotenv import load_dotenv
 import os
@@ -54,7 +54,63 @@ def snaptrade_account_register(user):
 
 
 
+def dailyWinners():
 
+
+    s = Screener()
+    stocks = s.get_screeners(['day_gainers'], count=5)
+    gainers_list = stocks.get('day_gainers', {}).get('quotes', [])
+    sorted_gainers = sorted(
+        gainers_list, 
+        key=lambda x: x.get('regularMarketChangePercent', 0), 
+        reverse=True
+    )
+
+    # Prepare it for JSON dump and call it in search views.py
+    result = []
+    for stock in sorted_gainers:
+        symbol = stock.get('symbol')
+        percentage = stock.get('regularMarketChangePercent')
+        price = Ticker(symbol)
+
+        hist = price.history(period='1d', interval='15m').reset_index()
+        price = hist["close"].tolist()
+        result.append({
+            'ticker':  symbol,
+            'price': price,
+            'percent': round(float(percentage), 2)
+
+        })
+    return result
+
+def dailyLosers():
+
+
+    s = Screener()
+    stocks = s.get_screeners(['day_losers'], count=5)
+    gainers_list = stocks.get('day_losers', {}).get('quotes', [])
+    sorted_gainers = sorted(
+        gainers_list, 
+        key=lambda x: x.get('regularMarketChangePercent', 0), 
+        reverse=False
+    )
+
+    # Prepare it for JSON dump and call it in search views.py
+    result = []
+    for stock in sorted_gainers:
+        symbol = stock.get('symbol')
+        percentage = stock.get('regularMarketChangePercent')
+        price = Ticker(symbol)
+
+        hist = price.history(period='1d', interval='15m').reset_index()
+        price = hist["close"].tolist()
+        result.append({
+            'ticker':  symbol,
+            'price': price,
+            'percent': round(float(percentage), 2)
+
+        })
+    return result
 
 
 
@@ -120,7 +176,7 @@ def signup_page(request):
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
 
 @receiver(social_account_added)
-def email_google_activation(request, sociallogin):
+def email_google_activation(sender, request, sociallogin, **kwargs):
     # Create the account for them and create profile
     user = sociallogin.user
     # Create the profile
@@ -167,7 +223,7 @@ def verification_page(request):
             snaptrade_account_register(user)
 
             login(request, user)
-            
+
             return redirect('home')
         # Signup would be required as if someone tried to do a url /verification/ it would have a messages.error
 
@@ -183,6 +239,24 @@ def home(request):
         return redirect('signup')
     if not request.user.profile.is_verified:
         return redirect('verify')
+    return (request, 'base/verification.html')
+
+# TODO; Snaptrade link account
+def snaptrade_link_views(request):
+    user = request.user
+    if not user.profile.snaptrade_user_id:
+        messages.error(request, "SnapTrade account not initialized.")
+        return redirect('home')
+    
+    try:
+        login_link = SnapTradeAPI_ACTIVATE.authentication.login_snap_trade_user(
+            user_id=user.profile.snaptrade_user_id,
+            user_secret=user.profile.snaptrade_user_secret)
+        redirect(login_link.redirect_url)
+        
+    # Redirect to home if failure
+    except Exception  as e:
+        return redirect('home')
 
 
 
@@ -192,18 +266,22 @@ def home(request):
 def loginpage(request):
     if request.method == "POST":
         # This is how we'll login right
-
         email = request.POST.get('email')
         password = request.POST.get('password')
-
+        # And then authenticate
         user = authenticate(request, email=email, password=password) 
         if user is None:
             messages.error(request, "This user does not exist, please signup or try again!")
             return redirect('login')
-        login(request, user)
+        # Check user
+
         if not request.user.is_authenticated or request.user.is_active:
             return redirect('signup')
+        # if all of all the situation is activate, then we authetnicate user
+        login(request, user)
 
         return redirect('home')
         
     return render(request, 'base/login.html')
+
+
