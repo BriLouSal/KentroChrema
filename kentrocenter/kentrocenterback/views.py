@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 # We don't wanna use float, as it's inaccurate.
 from decimal import Decimal
-from snaptrade.api_client import SnapTradeAPIClient
+from snaptrade_client import SnapTrade
 
 
 from allauth.socialaccount.signals import social_account_added
@@ -32,7 +32,7 @@ load_dotenv()
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 SECRET_KEY = os.getenv('SECRET_KEY')
-SnapTradeAPI_ACTIVATE  = SnapTradeAPIClient(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
+SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 # Plans: First we need to have our signup/authentication systems ready at any cost,
 
 
@@ -53,7 +53,6 @@ def snaptrade_account_register(user):
 
 # Grab the user's portfolio, and we'll have a error handling that will ensure if there's a case where the User hasn't registered
 
-
 def snaptrade_portfolio(user):
     snaptrade = user.profile.snaptrade_user_id
     snap_secret = user.profile.snaptrade_user_secret
@@ -61,14 +60,10 @@ def snaptrade_portfolio(user):
         user_id=snaptrade,
         user_secret=snap_secret
     )
+    for account in accounts:
+        # Grab the 
+        pass
     
-    
-
-
-    
-
-
-
 
 def dailyWinners():
 
@@ -276,10 +271,15 @@ def snaptrade_link_views(request):
 
 
 
-
-
+ 
+# This will be the secondary process after the User has linked their bank accounts
 def account_link_porfolio(request):
-    pass
+    user = request.user
+    # Must have a snaptrade_user
+    if not user.profile.snaptrade_user_id:
+        messages.error(request, "SnapTrade account not initialized.")
+        return redirect('home')
+
 
     
 
