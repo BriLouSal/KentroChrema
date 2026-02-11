@@ -38,8 +38,31 @@ class EmailVerificationCode(models.Model):
         return timezone.now() > self.created_at + timedelta(minutes=10)
     def __str__(self):
         return f"{self.user.email} - {self.code}"
+
+class BrokerageAccount(models.Model):
+    account  = models.ForeignKey(User, on_delete=models.CASCADE)
+    snaptrade_user_id = models.CharField(max_length=255)
+    snaptrade_user_secret = models.CharField(max_length=255)
+    account_name = models.CharField(max_length=255)
+# Data needed: Book Cost, User, Avg_cost, SharesHold,  market_value, value_of_stock
+class Holding(models.Model):
+    user = models.ForeignKey(BrokerageAccount, on_delete=models.CASCADE)
+    book_cost = models.FloatField()
+    # Shareshold must be float to consider partial shares
+    shares_hold = models.FloatField()
+    market_value = models.FloatField()
     
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+
+# Using the mistake from MarketSight, we'd want to create a portfolio date_time
+
+class PortfolioTime(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="snapshots")
+    total_value = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ["created_at"]

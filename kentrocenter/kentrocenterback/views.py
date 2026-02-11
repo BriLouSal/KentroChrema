@@ -9,8 +9,8 @@ from random import randint
 from django.conf import settings
 # Create your views here.
 from django.db.models.signals import post_save
-
-
+# We don't wanna use float, as it's inaccurate.
+from decimal import Decimal
 from snaptrade.api_client import SnapTradeAPIClient
 
 
@@ -51,11 +51,28 @@ def snaptrade_account_register(user):
     user.profile.save()
 
 
+# Grab the user's portfolio, and we'll have a error handling that will ensure if there's a case where the User hasn't registered
+
+
+def snaptrade_portfolio(user):
+    snaptrade = user.profile.snaptrade_user_id
+    snap_secret = user.profile.snaptrade_user_secret
+    accounts = SnapTradeAPI_ACTIVATE.account_information.list_user_accounts(
+        user_id=snaptrade,
+        user_secret=snap_secret
+    )
+    
+    
+
+
+    
+
 
 
 
 def dailyWinners():
 
+    
 
     s = Screener()
     stocks = s.get_screeners(['day_gainers'], count=5)
@@ -219,14 +236,13 @@ def verification_page(request):
             user.profile.save()
 
             verification.delete()
-            # Regiseter for it after the user has verified
+            # Register for it after the user has verified
             snaptrade_account_register(user)
 
             login(request, user)
 
             return redirect('home')
         # Signup would be required as if someone tried to do a url /verification/ it would have a messages.error
-
 
         except EmailVerificationCode.DoesNotExist:
             messages.error(request, "Verification Code does not Exist, Please Signup")
@@ -259,6 +275,11 @@ def snaptrade_link_views(request):
         return redirect('home')
 
 
+
+
+
+def account_link_porfolio(request):
+    pass
 
     
 
