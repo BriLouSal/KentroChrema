@@ -156,13 +156,13 @@ def signup_page(request):
             user.is_active = False
             user.save()
 
-            profile = Profile.objects.create(
-                user=user,
-                is_verified=False
-            )
-
-            profile.is_verified = False
-            profile.save()
+            profile, created = Profile.objects.get_or_create(
+            user=user,
+            defaults={'is_verified': False}
+        )
+            if not created:
+                profile.is_verified = False
+                profile.save()
             if user and user.is_active:
                 return redirect("login")
 
@@ -247,6 +247,8 @@ def verification_page(request):
             verification.delete()
             # Register for it after the user has verified
             snaptrade_account_register(user)
+            # Clarify the backend
+            user.backend = settings.AUTHENTICATION_BACKENDS[0]
 
             login(request, user)
 
@@ -260,10 +262,8 @@ def verification_page(request):
     
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
-    if not request.user.is_authenticated:
-        return redirect('signup')
-    if not request.user.profile.is_verified:
-        return redirect('verify')
+    print("HOME VIEW — user:", request.user)
+    print("Authenticated:", request.user.is_authenticated)
     return render(request, 'base/home.html')
 
 
@@ -296,7 +296,7 @@ def snaptrade_link_views(request):
         login_link = SnapTradeAPI_ACTIVATE.authentication.login_snap_trade_user(
             user_id=profile.snaptrade_user_id,
             user_secret=profile.snaptrade_user_secret)
-        redirect(login_link.redirect_url)
+        return redirect(login_link.redirect_url)
         
     # Redirect to home if failure
     except Exception  as e:
@@ -319,32 +319,27 @@ def account_link_porfolio(request):
 
 def loginpage(request):
     if request.method == "POST":
-        # This is how we'll login right
         email = request.POST.get('email')
         password = request.POST.get('password')
-        # And then authenticate
 
-        user_obj = User.objects.filter(email=email).first()
-
+        user = authenticate(request, username=email, password=password)
 
 
-        user = authenticate(request, email=user_obj, password=password) 
-        # Check user
-        if user is None:
-            messages.error(request, "Invalid email or password.")
-            return redirect('login')
-        if not user.is_active:
-            messages.error(request, "Account not verified.")
-            return redirect('verify')
-        
-        if user.check_password(password):
-            return user 
-                
-        # if all of all the situation is activate, then we authetnicate user
-        login(request, user)
-
-        return redirect('home')
-        
+        if user is not None:
+            # check if they're veriified
+            if not user.is_active:
+                messages.warning(request, "Please verify your email first.")
+                return redirect('verify')
+            
+            # Clarify backend, as there's a issue and Django complains about it
+            user.backend = settings.AUTHENTICATION_BACKENDS[0]
+            login(request, user)
+            return redirect('home')
+        else:
+            # Invalid password case
+            messages.error(request, "Invalid password.")
+            return render(request, 'base/login.html') # Stay here
+            
     return render(request, 'base/login.html')
 
 
