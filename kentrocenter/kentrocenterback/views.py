@@ -193,7 +193,7 @@ def signup_page(request):
             return redirect('signup')
             
 
-    return render(request, 'base/signup.html')
+    return render(request, 'base/authentication/signup.html')
 # This will be our API call towards Google for users to login via this method
 
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
@@ -342,6 +342,9 @@ def loginpage(request):
             messages.error(request, "Invalid password.")
             return render(request, 'base/login.html') # Stay here
             
-    return render(request, 'base/login.html')
+    return render(request, 'base/authentication/login.html')
 
 
+def logout_page(request):
+    logout(request)
+    return redirect('signup')

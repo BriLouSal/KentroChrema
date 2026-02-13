@@ -17,6 +17,7 @@ body{
     font-style: normal;
     background-color: #f4f4f4;
     color: white;
+    background-image: linear-gradient(to right, #434343 0%, black 100%);
 }
 
 

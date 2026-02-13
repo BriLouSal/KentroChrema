@@ -11,7 +11,14 @@
 <body> 
     <div class="navbar">
       <a href="{% url 'portfolio' %}">Portfolio</a>
+      <a href="{% url 'logout' %}">Logout</a>
      </div>
     
+     
+
+
+     {% block scripts %}
+
+     {% endblock scripts %}
 </body>
 </html>

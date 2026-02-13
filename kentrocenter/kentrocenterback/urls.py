@@ -9,7 +9,7 @@ urlpatterns  = [
     path('login/' , views.loginpage, name='login'),
     path('verification/', views.verification_page, name='verify'),
     path('portfolio/', views.user_portfolio, name='portfolio'),
-
+    path('logout/', views.logout_page, name='logout'),
     # API and Login methods
     path('accounts/', include('allauth.urls')),
 ]
