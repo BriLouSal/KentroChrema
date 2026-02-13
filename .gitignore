@@ -4,4 +4,4 @@ kentrocenter/kentrocenterback/.env
 kentrocenter/kentrocenterback/KOSAI.py
 kentrocenter/kentrocenter/settings.py
 kentrocenter/kentrocenterback/backend.py
-kentrocenter/kentrocenterback/views.py
+kentrocenter/kentrocenterback/models.py

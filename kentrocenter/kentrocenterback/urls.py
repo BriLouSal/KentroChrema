@@ -8,6 +8,7 @@ urlpatterns  = [
     path('home/', views.home, name='home'),
     path('login/' , views.loginpage, name='login'),
     path('verification/', views.verification_page, name='verify'),
+    path('portfolio/', views.user_portfolio, name='portfolio'),
 
     # API and Login methods
     path('accounts/', include('allauth.urls')),
