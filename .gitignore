@@ -3,3 +3,4 @@ kentrocenter/kentrocenterback/.env
 .venv
 kentrocenter/kentrocenterback/KOSAI.py
 kentrocenter/kentrocenter/settings.py
+kentrocenter/kentrocenterback/backend.py

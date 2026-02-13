@@ -38,31 +38,33 @@ SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
 
 # Create a autosign up to SnapTrade
-def snaptrade_account_register(user):
-    # If the user exist just return, so we don't get duplicate
-    if user.profile.snaptrade_user_id:
-        return
-    snaptrade_user_id = f"user_{user.id}_{uuid.uuid4().hex[:8]}"
-    response = SnapTradeAPI_ACTIVATE.authentication.register_snap_trade_user(
-    user_id=snaptrade_user_id
-)
-    user.profile.snaptrade_user_id = snaptrade_user_id
-    user.profile.snaptrade_user_secret = response.user_secret
-    user.profile.save()
 
 
 # Grab the user's portfolio, and we'll have a error handling that will ensure if there's a case where the User hasn't registered
 
+
+# rEFERENCE: http://pypi.org/project/snaptrade-python-sdk/#snaptradeaccount_informationget_user_holdings
+
 def snaptrade_portfolio(user):
-    snaptrade = user.profile.snaptrade_user_id
-    snap_secret = user.profile.snaptrade_user_secret
-    accounts = SnapTradeAPI_ACTIVATE.account_information.list_user_accounts(
+    profile = user.profile
+    snaptrade = profile.snaptrade_user_id
+    snap_secret = profile.snaptrade_user_secret
+    accounts = snaptrade.account_information.list_user_accounts(
         user_id=snaptrade,
         user_secret=snap_secret
     )
+    # Accounts must exist or we'll redirect it
+
+
+    if accounts is None:
+        return redirect('home')
+    
+    account_information = {}
+    
+
     for account in accounts:
         # Grab the 
-        pass
+        return account.id
     
 
 def dailyWinners():
@@ -72,6 +74,7 @@ def dailyWinners():
     s = Screener()
     stocks = s.get_screeners(['day_gainers'], count=5)
     gainers_list = stocks.get('day_gainers', {}).get('quotes', [])
+    
     sorted_gainers = sorted(
         gainers_list, 
         key=lambda x: x.get('regularMarketChangePercent', 0), 
@@ -84,9 +87,9 @@ def dailyWinners():
         symbol = stock.get('symbol')
         percentage = stock.get('regularMarketChangePercent')
         price = Ticker(symbol)
-
-        hist = price.history(period='1d', interval='15m').reset_index()
-        price = hist["close"].tolist()
+        
+        hist = price.history(period="1d", interval="15m").reset_index()
+        prices = hist["close"].tolist()
         result.append({
             'ticker':  symbol,
             'price': price,
@@ -138,10 +141,12 @@ def signup_page(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = User.objects.filter(email=email).first()
-        if user:
-            if user.is_active:
+        existing_user = User.objects.filter(email=email).first()
+        if existing_user:
+            if existing_user.is_active:
                 return redirect('login')
+            else:
+                user = existing_user
 
         # Then we should redirect the user to verification code and match it email
         else:
@@ -155,6 +160,9 @@ def signup_page(request):
                 user=user,
                 is_verified=False
             )
+
+            profile.is_verified = False
+            profile.save()
             if user and user.is_active:
                 return redirect("login")
 
@@ -162,6 +170,7 @@ def signup_page(request):
         # So we wanna generate the verification code
         generated_code = str(randint(100000, 999999))
         # After that we wanna create the model of email verification and we can do a if-statement to check if the email verification is matched with the user
+        
         EmailVerificationCode.objects.update_or_create(user=user, defaults={'code': generated_code, 'is_verified': False})
 
         request.session['verify_user_id'] = user.id
@@ -193,8 +202,12 @@ def email_google_activation(sender, request, sociallogin, **kwargs):
     user = sociallogin.user
     # Create the profile
     profile, created = Profile.objects.get_or_create(user=user)
+
     profile.is_verified = True
     profile.save()
+
+    user.is_active = True
+    user.save()
 
 
 # Create a views where the user can enter their StockPortfolio signup to Wealthsimple, Shakepay, etc.
@@ -210,7 +223,7 @@ def verification_page(request):
         user_id = request.session.get('verify_user_id')
         # If empty redirect to signup
         if not user_id:
-            redirect('signup')
+            return redirect('signup')
     
         try:
             verification = EmailVerificationCode.objects.get(
@@ -223,12 +236,13 @@ def verification_page(request):
                 messages.error(request, "Verification code expired.")
                 return redirect('signup')
             user = verification.user
-
+            profile, created = Profile.objects.get_or_create(user=user)
+            profile.is_verified = True
+            profile.save()
+           
             user.is_active = True
             user.save()
 
-            user.profile.is_verified = True
-            user.profile.save()
 
             verification.delete()
             # Register for it after the user has verified
@@ -250,19 +264,38 @@ def home(request):
         return redirect('signup')
     if not request.user.profile.is_verified:
         return redirect('verify')
-    return (request, 'base/verification.html')
+    return render(request, 'base/home.html')
+
+
+
+
+
+def snaptrade_account_register(user):
+    # If the user exist just return, so we don't get duplicate
+    profile, created = Profile.objects.get_or_create(user=user)
+    if  profile.snaptrade_user_id:
+        return
+    snaptrade_user_id = f"user_{user.id}_{uuid.uuid4().hex[:8]}"
+    response = SnapTradeAPI_ACTIVATE.authentication.register_snap_trade_user(
+    user_id=snaptrade_user_id
+)
+    profile.snaptrade_user_id = snaptrade_user_id
+    profile.snaptrade_user_secret = response.body
+    profile.save()
+
 
 # TODO; Snaptrade link account
 def snaptrade_link_views(request):
     user = request.user
-    if not user.profile.snaptrade_user_id:
+    profile, created = Profile.objects.get_or_create(user=user)
+    if not profile.snaptrade_user_id:
         messages.error(request, "SnapTrade account not initialized.")
         return redirect('home')
     
     try:
         login_link = SnapTradeAPI_ACTIVATE.authentication.login_snap_trade_user(
-            user_id=user.profile.snaptrade_user_id,
-            user_secret=user.profile.snaptrade_user_secret)
+            user_id=profile.snaptrade_user_id,
+            user_secret=profile.snaptrade_user_secret)
         redirect(login_link.redirect_url)
         
     # Redirect to home if failure
@@ -290,14 +323,23 @@ def loginpage(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         # And then authenticate
-        user = authenticate(request, email=email, password=password) 
-        if user is None:
-            messages.error(request, "This user does not exist, please signup or try again!")
-            return redirect('login')
-        # Check user
 
-        if not request.user.is_authenticated or request.user.is_active:
-            return redirect('signup')
+        user_obj = User.objects.filter(email=email).first()
+
+
+
+        user = authenticate(request, email=user_obj, password=password) 
+        # Check user
+        if user is None:
+            messages.error(request, "Invalid email or password.")
+            return redirect('login')
+        if not user.is_active:
+            messages.error(request, "Account not verified.")
+            return redirect('verify')
+        
+        if user.check_password(password):
+            return user 
+                
         # if all of all the situation is activate, then we authetnicate user
         login(request, user)
 
