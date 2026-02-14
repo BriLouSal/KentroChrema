@@ -23,7 +23,9 @@ from yahooquery import Ticker, Screener
 from django.dispatch import receiver
 from dotenv import load_dotenv
 import os
-
+from .KOSAI import (
+    snaptrade_portfolio
+)
 load_dotenv()
 
 
@@ -47,26 +49,7 @@ SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
 # rEFERENCE: http://pypi.org/project/snaptrade-python-sdk/#snaptradeaccount_informationget_user_holdings
 
-def snaptrade_portfolio(user):
-    profile = user.profile
-    snaptrade = profile.snaptrade_user_id
-    snap_secret = profile.snaptrade_user_secret
-    accounts = snaptrade.account_information.list_user_accounts(
-        user_id=snaptrade,
-        user_secret=snap_secret
-    )
-    # Accounts must exist or we'll redirect it
 
-
-    if accounts is None:
-        return redirect('home')
-    
-    account_information = {}
-    
-
-    for account in accounts:
-        # Grab the 
-        return account.id
     
 
 def dailyWinners():
@@ -264,25 +247,35 @@ def verification_page(request):
     
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
-    # Have our dailyW
-    return render(request, 'base/home.html')
+    # Have our dailyWnners and Daily losers at the start, similar to our
+    daily_winners = dailyWinners()
+    daily_losers = dailyLosers()
+
+    percentage_losing = json.dumps(tickers["price"] for tickers in daily_losers)
+    percentage_winners = json.dumps(tickers["price"] for tickers in daily_winners)
+
+    ticker_of_winners = json.dumps(tickers["ticker"] for tickers in daily_winners)
+    ticker_of_losers =  json.dumps(tickers["ticker"] for tickers in daily_losers)
+
+
+    context = {
+        "gainers": daily_winners,
+        "losers": daily_losers,
+        "label_ticker_winners": ticker_of_winners,
+        "label_ticker_losers": ticker_of_losers,
+        "percentage_winners": percentage_winners,
+        "percentage_losing": percentage_losing,
+
+    }
+ 
+
+
+    return render(request, 'base/home.html', context)
 
 
 
 
 
-def snaptrade_account_register(user):
-    # If the user exist just return, so we don't get duplicate
-    profile, created = Profile.objects.get_or_create(user=user)
-    if  profile.snaptrade_user_id:
-        return
-    snaptrade_user_id = f"user_{user.id}_{uuid.uuid4().hex[:8]}"
-    response = SnapTradeAPI_ACTIVATE.authentication.register_snap_trade_user(
-    user_id=snaptrade_user_id
-)
-    profile.snaptrade_user_id = snaptrade_user_id
-    profile.snaptrade_user_secret = response.body
-    profile.save()
 
 
 # TODO; Snaptrade link account
