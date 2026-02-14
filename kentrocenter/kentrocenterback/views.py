@@ -77,7 +77,7 @@ def dailyWinners():
         prices = hist["close"].tolist()
         result.append({
             'ticker':  symbol,
-            'price': price,
+            'price': prices,
             'percent': round(float(percentage), 2)
 
         })
@@ -251,11 +251,11 @@ def home(request):
     daily_winners = dailyWinners()
     daily_losers = dailyLosers()
 
-    percentage_losing = json.dumps(tickers["price"] for tickers in daily_losers)
-    percentage_winners = json.dumps(tickers["price"] for tickers in daily_winners)
+    percentage_losing = json.dumps([tickers["price"] for tickers in daily_losers])
+    percentage_winners = json.dumps([tickers["price"] for tickers in daily_winners])
 
-    ticker_of_winners = json.dumps(tickers["ticker"] for tickers in daily_winners)
-    ticker_of_losers =  json.dumps(tickers["ticker"] for tickers in daily_losers)
+    ticker_of_winners = json.dumps([tickers["ticker"] for tickers in daily_winners])
+    ticker_of_losers =  json.dumps([tickers["ticker"] for tickers in daily_losers])
 
 
     context = {
