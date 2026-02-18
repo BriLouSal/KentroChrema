@@ -1,0 +1,23 @@
+from django.urls import path, include
+from django.conf import settings
+from . import views
+
+
+urlpatterns  = [
+    path('', views.signup_page, name='signup'),
+    path('home/', views.home, name='home'),
+    path('login/' , views.loginpage, name='login'),
+    path('verification/', views.verification_page, name='verify'),
+    path('portfolio/', views.user_portfolio, name='portfolio'),
+    path('logout/', views.logout_page, name='logout'),
+    path('snaptrade_verification/', views.snaptrade_link_views_wealthsimple, name='snaptrade_link'),
+    path('snaptrade_callback/', views.redirect_url_snaptrade, name='snaptrade_callback'),
+    # API and Login methods
+    path('accounts/', include('allauth.urls')),
+]
+
+if settings.DEBUG:
+    # Include django_browser_reload URLs only in DEBUG mode
+    urlpatterns += [
+        path("__reload__/", include("django_browser_reload.urls")),
+    ]

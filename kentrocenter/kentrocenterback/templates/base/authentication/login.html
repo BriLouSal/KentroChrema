@@ -1,0 +1,91 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+     {% tailwind_css %}
+    <link rel="stylesheet" href="{% static 'signup.css' %}">
+    
+</head>
+    <body>
+        <!-- Navbar -->
+        <!-- <div class="navbar flex flex-row gap-3 items-center justify-center py-2.5 px-5  no-underline text-bold  text-2xl">
+            <a href="{% url 'home' %}" class="" >Home</a>
+
+        </div> -->
+
+
+        <!-- Form Container we want the container to be full screen since we want to have a 50/50 UI where we have info and intro and other side is signupform -->
+        <div class="flex flex-col lg:flex-row min-h-screen">
+            <!-- Half -->
+             
+             <section class= "bg-gradient-to-br from-blue-300 to-purple-500 w-5/12  flex flex-col justify-between p-10"> 
+                <!-- Intro -->
+                <div class="flex flex-row gap-3 items-start justify-start">
+                <div class="top-[150px]">
+                    <p class="text-white text-xl font-semibold">Kentro Cherma</p>
+                    <p class="text-white mt-2">A Centeralized Investment App</p>
+                    <p class="text-blue-white mb-4 font-bold">Why us?</p>
+                </div>
+                
+                <!-- Cards -->
+                 
+                 <div class="grid grid-cols-1 gap-6 place-items-center w-full">
+                    <!-- Card -->
+                    <div class="bg-gradient-to-br from-blue-300 to-purple-400 block max-w-sm p-6 border border-default rounded-base shadow-xs hover:bg-neutral-secondary-medium border-none rounded-xl h-[100px]  w-full items-center top-[150px]">
+                        <p class="text-2xl text-bold text-white text-center">Lorem ipsum dolor sit!</p>
+                    </div>
+                 </div>
+
+             </section>
+
+             <main class=" bg-white flex flex-col w-7/12 items-center justify-center">
+                <!-- Create the form here -->
+                 <div class="border-none flex flex-row w-full max-w-[500px] h-3/4 items-center justify-center">
+                    <form action="{% url 'login' %}" method="POST" class="w-full flex flex-col items-center">
+
+                        {% csrf_token %}
+
+                        <!-- Wrapper for the text, so we can adjust it accordingly -->
+                        <div class="w-full flex flex-col items-center gap-6 mb-4 text-center">
+                            <label for="email" class="text-black font-bold text-2xl items-start justify-start">Email</label>
+                            <input type="email" name="email" id="email" placeholder="Enter your Email"
+                            class="text-center text-black rounded 2xl h-full w-full bg-gray-100" required>
+                            
+                           
+                            <label for="Password" class="text-black font-bold text-2xl">Password</label>
+                            <input type="password" name="password" id="password" placeholder="Enter your Password" class="text-center text-black bg-gray-100 round-2xl w-full " required>
+
+                            <button type="submit" class="text-white text-2xl bg-blue-500 w-full hover:bg-blue-800 hover:text-gray-400 rounded-2xl h-3/4">Login </button>
+                            
+                            <a href="{% url 'signup' %}" class="text-center">
+                                <label for="Login" class="text-black font-bold text-size[12px]  text-sm uppercase tracking-wide">Don't have an account? Please Sign up to take advantage of the financial tools</label>
+                            </a>
+                            
+                            <span class="flex-shrink mx-4 text-gray-400 text-sm uppercase tracking-wide">
+                                Or continue with
+                            </span>
+                            
+                        </div>
+                        <!-- Flex row for continue with! -->
+                        <div>
+
+                        </div>
+
+
+                    </form>
+                 </div>
+
+             </main>
+
+             
+
+            </div>
+        {% block scripts %}
+
+        <script src="{% static 'index.js' %}"></script>
+        {% endblock scripts %}
+    </body>
+</html>
