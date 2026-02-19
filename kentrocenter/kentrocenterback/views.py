@@ -286,7 +286,8 @@ def home(request):
     # Have our dailyWnners and Daily losers at the start, similar to our
     daily_winners = dailyWinners()
     daily_losers = dailyLosers()
-
+    # Json dump so that info is able to be reliable and seamless data transfer to Javascript
+    # which will be used for Chart.JS
     percentage_losing = json.dumps([tickers["price"] for tickers in daily_losers])
     percentage_winners = json.dumps([tickers["price"] for tickers in daily_winners])
 
@@ -324,19 +325,32 @@ def redirect_url_snaptrade(request):
 def top_news():
     # So we know it returns a Json data, so we'll have to iterate through it and make some empty list
     sentiment_score = SentimentIntensityAnalyzer()
-    finnhub_client_news = finnhub_client.general_news('general', min_id=0)[:5]
+    finnhub_client_news = finnhub_client.general_news('general', min_id=0)
     news_data = []
     for news in finnhub_client_news:
         headline = news.get("headline", "")
+    
+        
         news_data.append({
             "headline": news["headline"],
             "summary": news["summary"],
             "link": news['url'],
             "sentiment_score": sentiment_score.polarity_scores(headline)["compound"],
-            
+            # use absolute polarity score and we'll sort it via lambda
+            "impact_score": abs(sentiment_score.polarity_scores(headline)["compound"]),
+        
             
         })
-    return news_data
+        # Sort it via the biggest imapct score, we'll use absolute numbers for this one 
+        # so we can have the highest impacts as possible -99.3 -> 99.3
+        
+        sorted_news =  sorted(
+            news_data,
+            key=lambda x: x["impact_score"],
+            reverse=True,
+        )
+        
+    return sorted_news[:5]
 
 
 

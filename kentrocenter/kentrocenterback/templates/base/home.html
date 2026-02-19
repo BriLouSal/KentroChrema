@@ -68,7 +68,7 @@
 
         <!-- Snaptrade -->
         <!-- Snaptrade Wrapper -->
-        <div class="flex justify-center w-[500px] h-auto">
+        <div class="space-y-8">
           <div class="w-full max-w-md">
             <div
               class="bg-blue-100 border border-blue-200 rounded-2xl p-6 shadow-sm"
@@ -96,11 +96,34 @@
                 <a href="{% url 'snaptrade_link' %}" class="block">
                   <button
                     class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
-                  id="snaptrade-connect-btn">
+                    id="snaptrade-connect-btn"
+                  >
                     Connect Your Brokerage
                   </button>
                 </a>
               </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl shadow-md p-6">
+            <h2 class="text-2xl font-bold text-black mb-6">BREAKING NEWS</h2>
+            <div class="space-y-4">
+              {% for article in news_information %}
+              <div
+                class="p-4 rounded-xl border-4 {% if article.sentiment_score > 0.4 %} border-green-500 bg-green-50 {% elif article.sentiment_score < -0.4 %} border-red-500 bg-red-50 {% else %} border-gray-400 bg-gray-50 {% endif %}"
+              >
+                <a
+                  href="{{ article.link }}"
+                  target="_blank"
+                  class="font-semibold text-gray-800 hover:underline block"
+                >
+                  {{ article.headline }}
+                </a>
+                <p class="text-sm text-gray-600 mt-2">
+                  {{ article.summary|truncatewords:20 }}
+                </p>
+
+              </div>
+              {% endfor %}
             </div>
           </div>
         </div>
