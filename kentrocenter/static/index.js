@@ -13,7 +13,10 @@ canvases.forEach((canvas, index) => {
           data: winner_percentage[index],
           borderColor: '#4fc51c',
           backgroundColor: '#166534',
-          borderWidth: 0
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          tension: 0.3
         }
       ]
     },
@@ -24,24 +27,6 @@ canvases.forEach((canvas, index) => {
 
       plugins: {
         legend: { display: false }
-      }
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false
-        },
-        border: {
-          display: false
-        }
-      },
-      y: {
-        grid: {
-          display: false
-        },
-        border: {
-          display: false
-        }
       }
     }
   })
@@ -50,7 +35,6 @@ canvases.forEach((canvas, index) => {
 losing_canvases.forEach((canvas, index) => {
   new Chart(canvas, {
     type: 'line',
-
     data: {
       labels: loser_percentage[index].map((_, i) => i),
       datasets: [
@@ -59,7 +43,10 @@ losing_canvases.forEach((canvas, index) => {
           data: loser_percentage[index],
           borderColor: '#DC2626',
           backgroundColor: '#DC2626',
-          borderWidth: 0
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          tension: 0.3
         }
       ]
     },
@@ -70,18 +57,6 @@ losing_canvases.forEach((canvas, index) => {
 
       plugins: {
         legend: { display: false }
-      }
-    },
-    scales: {
-      x: {
-        gridLines: {
-          display: false
-        }
-      },
-      y: {
-        gridLines: {
-          display: false
-        }
       }
     }
   })

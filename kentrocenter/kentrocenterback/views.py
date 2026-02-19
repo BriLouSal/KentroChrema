@@ -16,13 +16,16 @@ from snaptrade_client import SnapTrade
 import json
 from django.http import JsonResponse
 
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+from finnhub import Client
+
 from allauth.socialaccount.signals import social_account_added
 
-import uuid
 
 import fmpsdk
 
-import finnhub
+
 from yahooquery import Ticker, Screener
 from django.dispatch import receiver
 from dotenv import load_dotenv
@@ -33,6 +36,9 @@ from .KOSAI import(
 )
 
 load_dotenv()
+
+
+
 
 
 
@@ -52,9 +58,13 @@ ALPACA_SECRET_KEY  = os.getenv('ALPACA_SECRET_KEY')
 
 
 
+
+
 FINANCIAL_API_KEY = os.getenv("FINANCIAL_API_KEY")
 
 
+
+finnhub_client = Client(api_key=FINNHUB_API)
 
 SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 # Plans: First we need to have our signup/authentication systems ready at any cost,
@@ -282,8 +292,8 @@ def home(request):
 
     ticker_of_winners = json.dumps([tickers["ticker"] for tickers in daily_winners])
     ticker_of_losers =  json.dumps([tickers["ticker"] for tickers in daily_losers])
-
-
+    
+    
     context = {
         "gainers": daily_winners,
         "losers": daily_losers,
@@ -291,6 +301,7 @@ def home(request):
         "label_ticker_losers": ticker_of_losers,
         "percentage_winners": percentage_winners,
         "percentage_losing": percentage_losing,
+        "news_information" : top_news(),
 
     }
  
@@ -308,11 +319,24 @@ def redirect_url_snaptrade(request):
     return redirect("home")
 
 
-
-
+# We'd want to JSON Serialize this one on home views
 
 def top_news():
-    pass
+    # So we know it returns a Json data, so we'll have to iterate through it and make some empty list
+    sentiment_score = SentimentIntensityAnalyzer()
+    finnhub_client_news = finnhub_client.general_news('general', min_id=0)[:5]
+    news_data = []
+    for news in finnhub_client_news:
+        headline = news.get("headline", "")
+        news_data.append({
+            "headline": news["headline"],
+            "summary": news["summary"],
+            "link": news['url'],
+            "sentiment_score": sentiment_score.polarity_scores(headline)["compound"],
+            
+            
+        })
+    return news_data
 
 
 
@@ -360,6 +384,9 @@ def account_link_porfolio(request):
     if not user.profile.snaptrade_user_id:
         messages.error(request, "SnapTrade account not initialized.")
         return redirect('home')
+
+
+
 
 
     
