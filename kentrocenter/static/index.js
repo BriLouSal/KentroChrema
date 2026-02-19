@@ -27,6 +27,10 @@ canvases.forEach((canvas, index) => {
 
       plugins: {
         legend: { display: false }
+      },
+      scales: {
+        x: { display: false },
+        y: { display: false }
       }
     }
   })
@@ -57,6 +61,10 @@ losing_canvases.forEach((canvas, index) => {
 
       plugins: {
         legend: { display: false }
+      },
+      scales: {
+        x: { display: false },
+        y: { display: false }
       }
     }
   })
