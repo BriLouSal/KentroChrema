@@ -8,18 +8,19 @@
     <title>Home Menu</title>
     <link rel="stylesheet" href="{% static 'home.css' %}" />
   </head>
-  <body class="bg-gray-200">
-    <div class="navbar text-black bg-netural-100">
+  <body class=" bg-gray-200 min-h-screen flex flex-col items-center justify-center gap-2">
+    <div class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl
+    shadow-2xl w-full">
       <a href="{% url 'portfolio' %}">Portfolio</a>
       <a href="{% url 'logout' %}">Logout</a>
     </div>
 
     <div class="max-w-7xl mx-auto px-6 py-10 items-center justify-center">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-        <div class="bg-white rounded-2xl shadow-md p-6 h-full flex flex-col">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="bg-white rounded-2xl shadow-md p-6 self-start h-fit">
           <div class="flex items-center gap-2 mb-8">
             <svg
-              class="w-6 h-6 text-green-500"
+              class="w-[24px] h-[24px] text-green-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -56,10 +57,10 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-md p-6 h-full flex flex-col">
+        <div class="bg-white rounded-2xl shadow-md p-6 self-start h-fit">
           <div class="flex items-center gap-2 mb-8">
             <svg
-              class="w-5 h-5 text-red-500"
+              class="w-[24px] h-[24px] text-red-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

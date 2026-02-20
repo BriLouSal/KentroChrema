@@ -312,6 +312,14 @@ def home(request):
 
 
 
+def stock(request, stock_ticker:str):
+    # Because we want to have it valid such as that aapl -> AAPL to grab the data easily
+    stock_url = stock_ticker.upper()
+    
+    for ticker in ticker:
+        if ticker['id'] == stock_ticker
+
+
 def redirect_url_snaptrade(request):
     status = request.GET.get("status")
     if status == "SUCCESS":
