@@ -317,7 +317,8 @@ def stock(request, stock_ticker:str):
     stock_url = stock_ticker.upper()
     
     for ticker in ticker:
-        if ticker['id'] == stock_ticker
+        if ticker['id'] == stock_ticker:
+            pass
 
 
 def redirect_url_snaptrade(request):
