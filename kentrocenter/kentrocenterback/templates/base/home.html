@@ -8,9 +8,12 @@
     <title>Home Menu</title>
     <link rel="stylesheet" href="{% static 'home.css' %}" />
   </head>
-  <body class=" bg-gray-200 min-h-screen flex flex-col items-center justify-center gap-2">
-    <div class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl
-    shadow-2xl w-full">
+  <body
+    class="bg-gray-200 min-h-screen flex flex-col items-center justify-center gap-2"
+  >
+    <div
+      class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl shadow-2xl w-full"
+    >
       <a href="{% url 'portfolio' %}">Portfolio</a>
       <a href="{% url 'logout' %}">Logout</a>
     </div>

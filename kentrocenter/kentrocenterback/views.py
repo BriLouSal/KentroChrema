@@ -11,7 +11,12 @@ from django.conf import settings
 from django.db.models.signals import post_save
 # We don't wanna use float, as it's inaccurate.
 from decimal import Decimal
+
+
+
 from snaptrade_client import SnapTrade
+from marketstack.api.intraday import intraday
+import marketstack
 
 import json
 from django.http import JsonResponse
@@ -57,12 +62,18 @@ FINNHUB_API = os.getenv('FINNHUB_KEY')
 
 API_KEY = os.getenv('ALPACA')
 ALPACA_SECRET_KEY  = os.getenv('ALPACA_SECRET_KEY')
+MARKETSTACK_API = os.getenv('MARKETSTACK_API_KEY')
 
 
 
 
+# MarketStack client
 
-
+def create_client() -> tuple[Client, str]:  
+    access_key = os.getenv("MARKETSTACK_API_KEY")
+    client = Client(base_url="https://api.marketstack.com/v1", headers={"Authorization": f"Bearer {access_key}"})
+    
+    return client, access_key 
 
 FINANCIAL_API_KEY = os.getenv("FINANCIAL_API_KEY")
 
@@ -97,61 +108,109 @@ snaptrade = SnapTrade(
 
 
 
+# Referenece: https://pypi.org/project/marketstack/
+# https://github.com/mreiche/marketstack-python/
+def stock_data(stock_ticker: str):
+    # I shall use marketstack for this one, as it has a lot of data and it's free, and it also has a python wrapper which is really good for us to use. and it's much more stable than Yahoo finance
+    client, access_key = create_client()
+    mapping = {
+        '1D': {'interval': '15min', 'limit': 100},
+        '1W': {'interval': '1hour', 'limit': 200},
+        '1M': {'interval': '12hour', 'limit': 300},
+        '1Y': {'interval': '24hour', 'limit': 365}
+    }
+
+    configuration = mapping.get('1D', {'interval': '15min', 'limit': 100}) 
+        
+    stock_ticker = stock_ticker.upper()
+    try:
+        response = intraday.sync(
+            client=client,
+            access_key=access_key,
+            symbols=stock_ticker,
+            interval=configuration['interval'],
+            limit=configuration['limit']
+        )
+        
+        if response.status_code != 200:
+            print(f"Error fetching stock data: {response.status_code} - {response.text}")
+            return None
+        
+        price_graph = [item.last for item in reversed(response)]
+        price_label = [item.date.strftime("%Y-%m-%d %H:%M") for item in reversed(response)]
+        
+        
+        return {
+            "price_graph": price_graph,
+            "price_label": price_label
+        }
+    except Exception as e:
+        print(f"Error fetching stock data for {stock_ticker}: {e}")
+        return None  # Return None or an appropriate value to indicate failure
+    
+
+
 def dailyWinners():
-    s = Screener()
-    stocks = s.get_screeners(['day_gainers'], count=5)
-    gainers_list = stocks.get('day_gainers', {}).get('quotes', [])
-    sorted_gainers = sorted(
-        gainers_list, 
-        key=lambda x: x.get('regularMarketChangePercent', 0), 
-        reverse=True
-    )
+    try:
+        s = Screener()
+        stocks = s.get_screeners(['day_gainers'], count=5)
+        gainers_list = stocks.get('day_gainers', {}).get('quotes', [])
+        sorted_gainers = sorted(
+            gainers_list, 
+            key=lambda x: x.get('regularMarketChangePercent', 0), 
+            reverse=True
+        )
 
-    # Prepare it for JSON dump and call it in search views.py
-    result = []
-    for stock in sorted_gainers:
-        symbol = stock.get('symbol')
-        percentage = stock.get('regularMarketChangePercent')
-        price = Ticker(symbol)
+        # Prepare it for JSON dump and call it in search views.py
+        result = []
+        for stock in sorted_gainers:
+            symbol = stock.get('symbol')
+            percentage = stock.get('regularMarketChangePercent')
+            price = Ticker(symbol)
 
-        hist = price.history(period='1d', interval='15m').reset_index()
-        price = hist["close"].tolist()
-        result.append({
-            'ticker':  symbol,
-            'price': price,
-            'percent': round(float(percentage), 2)
+            hist = price.history(period='1d', interval='15m').reset_index()
+            price = hist["close"].tolist()
+            result.append({
+                'ticker':  symbol,
+                'price': price,
+                'percent': round(float(percentage), 2)
 
-        })
-    return result
+            })
+    
+        return result
+    except Exception as e:
+        return []  # Return an empty list in case of any error, such as that we can raise API limit error or something like that, so we can just return an empty list and it won't break the website, and we can also add a message to the user that there's a issue with the API and that they should try again later.
 
 def dailyLosers():
+    try:
 
+        s = Screener()
+        stocks = s.get_screeners(['day_losers'], count=5)
+        gainers_list = stocks.get('day_losers', {}).get('quotes', [])
+        sorted_gainers = sorted(
+            gainers_list, 
+            key=lambda x: x.get('regularMarketChangePercent', 0), 
+            reverse=False
+        )
 
-    s = Screener()
-    stocks = s.get_screeners(['day_losers'], count=5)
-    gainers_list = stocks.get('day_losers', {}).get('quotes', [])
-    sorted_gainers = sorted(
-        gainers_list, 
-        key=lambda x: x.get('regularMarketChangePercent', 0), 
-        reverse=False
-    )
+        # Prepare it for JSON dump and call it in search views.py
+        result = []
+        for stock in sorted_gainers:
+            symbol = stock.get('symbol')
+            percentage = stock.get('regularMarketChangePercent')
+            price = Ticker(symbol)
 
-    # Prepare it for JSON dump and call it in search views.py
-    result = []
-    for stock in sorted_gainers:
-        symbol = stock.get('symbol')
-        percentage = stock.get('regularMarketChangePercent')
-        price = Ticker(symbol)
+            hist = price.history(period='1d', interval='15m').reset_index()
+            price = hist["close"].tolist()
+            result.append({
+                'ticker':  symbol,
+                'price': price,
+                'percent': round(float(percentage), 2)
 
-        hist = price.history(period='1d', interval='15m').reset_index()
-        price = hist["close"].tolist()
-        result.append({
-            'ticker':  symbol,
-            'price': price,
-            'percent': round(float(percentage), 2)
-
-        })
-    return result
+            })
+        return result
+    except Exception as e:
+        return []  # Return an empty list in case of any error, such as that we can raise API limit error or something like that, so we can just return an empty list and it won't break the website, and we can also add a message to the user that there's a issue with the API and that they should try again later.
 
 
 
@@ -323,6 +382,8 @@ def stock(request, stock_ticker:str):
     # Because we want to have it valid such as that aapl -> AAPL to grab the data easily
     stock_url = stock_ticker.upper()
     
+    return render(request, 'base/stock_view.html')
+    
     
 
 def insider_transaction_trading(stock_ticker: str,):
@@ -330,14 +391,31 @@ def insider_transaction_trading(stock_ticker: str,):
     
     today = date.today().isoformat()
 
-    one_month_ago = (date.today() - relativedelta(months=1)).isoformat()
-    
-    
+    insider_informtion = []
+
+    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
     
     
     sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
     
+    # Grab the data for
+    for data in sentiment_data.get("data", []):
+        insider_informtion.append({
+            "mspr": data.get("mspr"),
+        })
+        
+    
+    
+        
+    
+    
+    
+    
+    
+    
+    
     return sentiment_data
+
 
 def redirect_url_snaptrade(request):
     status = request.GET.get("status")
