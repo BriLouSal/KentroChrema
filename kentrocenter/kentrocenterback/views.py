@@ -22,6 +22,10 @@ from finnhub import Client
 
 from allauth.socialaccount.signals import social_account_added
 
+from datetime import datetime, date
+
+from dateutil.relativedelta import relativedelta
+
 
 import fmpsdk
 
@@ -65,6 +69,9 @@ FINANCIAL_API_KEY = os.getenv("FINANCIAL_API_KEY")
 
 
 finnhub_client = Client(api_key=FINNHUB_API)
+
+
+tickers = []
 
 SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 # Plans: First we need to have our signup/authentication systems ready at any cost,
@@ -316,10 +323,21 @@ def stock(request, stock_ticker:str):
     # Because we want to have it valid such as that aapl -> AAPL to grab the data easily
     stock_url = stock_ticker.upper()
     
-    for ticker in ticker:
-        if ticker['id'] == stock_ticker:
-            pass
+    
 
+def insider_transaction_trading(stock_ticker: str,):
+    stock_ticker = stock_ticker.upper()
+    
+    today = date.today().isoformat()
+
+    one_month_ago = (date.today() - relativedelta(months=1)).isoformat()
+    
+    
+    
+    
+    sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
+    
+    return sentiment_data
 
 def redirect_url_snaptrade(request):
     status = request.GET.get("status")
@@ -329,12 +347,18 @@ def redirect_url_snaptrade(request):
     return redirect("home")
 
 
+
+
+
+def stock_news(data):
+    pass
+
 # We'd want to JSON Serialize this one on home views
 
 def top_news():
     # So we know it returns a Json data, so we'll have to iterate through it and make some empty list
     sentiment_score = SentimentIntensityAnalyzer()
-    finnhub_client_news = finnhub_client.general_news('general', min_id=0)
+    finnhub_client_news = finnhub_client.general_news('crypto', min_id=0)
     news_data = []
     for news in finnhub_client_news:
         headline = news.get("headline", "")
@@ -353,7 +377,7 @@ def top_news():
         # Sort it via the biggest imapct score, we'll use absolute numbers for this one 
         # so we can have the highest impacts as possible -99.3 -> 99.3
         
-        sorted_news =  sorted(
+        sorted_news = sorted(
             news_data,
             key=lambda x: x["impact_score"],
             reverse=True,
