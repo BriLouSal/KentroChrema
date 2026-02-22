@@ -12,6 +12,7 @@ from django.db.models.signals import post_save
 # We don't wanna use float, as it's inaccurate.
 from decimal import Decimal
 
+import secrets
 
 
 from snaptrade_client import SnapTrade
@@ -251,7 +252,7 @@ def signup_page(request):
 
 
         # So we wanna generate the verification code
-        generated_code = str(randint(100000, 999999))
+        generated_code = f"{secrets.randbelow(1_000_000):06}"
         # After that we wanna create the model of email verification and we can do a if-statement to check if the email verification is matched with the user
         
         EmailVerificationCode.objects.update_or_create(user=user, defaults={'code': generated_code, 'is_verified': False})
