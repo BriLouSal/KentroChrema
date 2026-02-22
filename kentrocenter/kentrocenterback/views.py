@@ -15,8 +15,9 @@ from decimal import Decimal
 
 
 from snaptrade_client import SnapTrade
-from marketstack.api.intraday import intraday
-import marketstack
+import twelvedata
+from twelvedata import TDClient
+
 
 import json
 from django.http import JsonResponse
@@ -30,10 +31,11 @@ from allauth.socialaccount.signals import social_account_added
 from datetime import datetime, date
 
 from dateutil.relativedelta import relativedelta
-
+import requests
 
 import fmpsdk
 
+import marketstack
 
 from yahooquery import Ticker, Screener
 from django.dispatch import receiver
@@ -62,18 +64,15 @@ FINNHUB_API = os.getenv('FINNHUB_KEY')
 
 API_KEY = os.getenv('ALPACA')
 ALPACA_SECRET_KEY  = os.getenv('ALPACA_SECRET_KEY')
-MARKETSTACK_API = os.getenv('MARKETSTACK_API_KEY')
+TWELVEDATA_API_KEY = os.getenv('TWELVEDATAAPI')
+
 
 
 
 
 # MarketStack client
 
-def create_client() -> tuple[Client, str]:  
-    access_key = os.getenv("MARKETSTACK_API_KEY")
-    client = Client(base_url="https://api.marketstack.com/v1", headers={"Authorization": f"Bearer {access_key}"})
-    
-    return client, access_key 
+
 
 FINANCIAL_API_KEY = os.getenv("FINANCIAL_API_KEY")
 
@@ -108,46 +107,55 @@ snaptrade = SnapTrade(
 
 
 
-# Referenece: https://pypi.org/project/marketstack/
-# https://github.com/mreiche/marketstack-python/
+# Referenece: https://marketstack.com/documentation
+# https://github.com/wsbinette/marketstack-api
+
+
+
+
+
+
 def stock_data(stock_ticker: str):
     # I shall use marketstack for this one, as it has a lot of data and it's free, and it also has a python wrapper which is really good for us to use. and it's much more stable than Yahoo finance
-    client, access_key = create_client()
-    mapping = {
-        '1D': {'interval': '15min', 'limit': 100},
-        '1W': {'interval': '1hour', 'limit': 200},
-        '1M': {'interval': '12hour', 'limit': 300},
-        '1Y': {'interval': '24hour', 'limit': 365}
-    }
-
-    configuration = mapping.get('1D', {'interval': '15min', 'limit': 100}) 
-        
-    stock_ticker = stock_ticker.upper()
+    twelvedata_client = TDClient(apikey=TWELVEDATA_API_KEY)
+    
     try:
-        response = intraday.sync(
-            client=client,
-            access_key=access_key,
-            symbols=stock_ticker,
-            interval=configuration['interval'],
-            limit=configuration['limit']
-        )
         
-        if response.status_code != 200:
-            print(f"Error fetching stock data: {response.status_code} - {response.text}")
-            return None
+        ticker_data = twelvedata_client.time_series(
+            symbol=stock_ticker.upper(),
+            interval="1min",
+            outputsize=100
+            
+        ).as_pandas()
         
-        price_graph = [item.last for item in reversed(response)]
-        price_label = [item.date.strftime("%Y-%m-%d %H:%M") for item in reversed(response)]
+        # We have to reverse the data so that we can have the most recent data at the end of the list, which will be used for Chart.JS
+        ticker_data = ticker_data.iloc[::-1]
+
+        price = [Decimal(str(value)) for value in ticker_data["close"].tolist()]
+        
+        labels = [timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index]
         
         
-        return {
-            "price_graph": price_graph,
-            "price_label": price_label
-        }
+     
+     
+     
+        return {"price": price, "labels": labels}
+        
+        
+
+            
+        
+        # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\
+
+            
+        tickers = []
+        
+
+
     except Exception as e:
         print(f"Error fetching stock data for {stock_ticker}: {e}")
         return None  # Return None or an appropriate value to indicate failure
-    
+        
 
 
 def dailyWinners():
@@ -163,19 +171,7 @@ def dailyWinners():
 
         # Prepare it for JSON dump and call it in search views.py
         result = []
-        for stock in sorted_gainers:
-            symbol = stock.get('symbol')
-            percentage = stock.get('regularMarketChangePercent')
-            price = Ticker(symbol)
 
-            hist = price.history(period='1d', interval='15m').reset_index()
-            price = hist["close"].tolist()
-            result.append({
-                'ticker':  symbol,
-                'price': price,
-                'percent': round(float(percentage), 2)
-
-            })
     
         return result
     except Exception as e:
@@ -369,6 +365,7 @@ def home(request):
         "percentage_winners": percentage_winners,
         "percentage_losing": percentage_losing,
         "news_information" : top_news(),
+        "stock_data": stock_data("AAPL")  # Example for Apple stock, you can change it to dynamic based on user input
 
     }
  
@@ -382,7 +379,18 @@ def stock(request, stock_ticker:str):
     # Because we want to have it valid such as that aapl -> AAPL to grab the data easily
     stock_url = stock_ticker.upper()
     
-    return render(request, 'base/stock_view.html')
+    # Grab stock data
+    
+    stock_ticker_data = stock_data(stock_url)
+    
+    
+    
+    
+    
+    context = {
+        "stock_data": stock_data(stock_url)
+    }
+    return render(request, 'base/stock_view.html', context)
     
     
 

@@ -11,18 +11,25 @@
     <div
       class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl shadow-2xl w-full"
     >
-
-    <div class=" flex items-center gap-2 mb-8 ">
-        <a href="{% url 'portfolio' %}">Portfolio</a>
-
-    </div>
-      
+    <div
+      class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl shadow-2xl w-full align-top p-4 gap-4"
+    >
+      <a href="{% url 'portfolio' %}">Portfolio</a>
       <a href="{% url 'logout' %}">Logout</a>
     </div>
 
     <!--  -->
-    <div class="stock-order">
+    <div class="stock-order"></div>
 
-    </div>
+
+
+    {% block scripts %}
+    <script>
+      const stockData = {{ stock_data|safe }};
+      const stockTicker = "{{ request.resolver_match.kwargs.stock_ticker }}";
+
+
+    </script>
+    {% endblock scripts %}
   </body>
 </html>
