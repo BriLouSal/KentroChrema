@@ -132,12 +132,12 @@ def stock_data(stock_ticker: str):
         # We have to reverse the data so that we can have the most recent data at the end of the list, which will be used for Chart.JS
         ticker_data = ticker_data.iloc[::-1]
 
-        price = [Decimal(str(value)) for value in ticker_data["close"].tolist()]
+        price = [float(value) for value in ticker_data["close"].tolist()]
         
         labels = [timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index]
         
-        
-     
+        print("Price data:", price)
+        print("Labels data:", labels)
      
      
         return {"price": price, "labels": labels}
@@ -379,7 +379,7 @@ def home(request):
         "percentage_winners": percentage_winners,
         "percentage_losing": percentage_losing,
         "news_information" : top_news(),
-        "stock_data": stock_data("AAPL")  # Example for Apple stock, you can change it to dynamic based on user input
+        "stock_data": stock_data("AAPL")  
 
     }
  
@@ -396,13 +396,23 @@ def stock(request, stock_ticker:str):
     # Grab stock data
     
     stock_ticker_data = stock_data(stock_url)
+    # Get the price history
+    
+    price_history =  json.dumps(stock_ticker_data.get("price", []))
+    labels =  json.dumps(stock_ticker_data.get("labels", []))
+    print("Price history:", price_history)
+    print("Labels:", labels)
+    
     
     # Grab news for the stock and the seniment score for the news
     stock_news_data = stock_news(stock_url)
     
-    #
     
-    stock_headline = stock_news_data['headline'] if stock_news_data else "No news available"
+    
+    # Grab insider trading information for the stock, LEGAL OFC, IT'S FROM THE SEC LOL
+    insider_trading_data = insider_transaction_trading(stock_url)
+    
+
     
     
     
@@ -415,6 +425,8 @@ def stock(request, stock_ticker:str):
     }
     return render(request, 'base/stock_view.html', context)
     
+    # Output: Price data: [263.815, 263.965, 264.10001, 264.125, 264.25, 264.14001, 264.185, 264.22501, 264.25, 264.42999, 264.62381, 264.60999, 264.51001, 264.54501, 264.45999, 264.29999, 264.24039, 264.01501, 264.14999, 264.10501, 264.09, 264.17999, 264.04999, 263.92999, 263.90021, 263.76001, 263.715, 263.79001, 263.715, 263.763, 263.9404, 263.845, 263.95999, 264.16, 264.09052, 264.17001, 264.14999, 264.20001, 264.27499, 264.17599, 264.22, 264.33649, 264.19, 264.33499, 264.26001, 264.38, 264.42001, 264.35001, 264.38, 264.42001, 264.42999, 264.45389, 264.5, 264.625, 264.60999, 264.51001, 264.44501, 264.34, 264.32501, 264.28, 264.10999, 263.82001, 263.89719, 263.67001, 263.62039, 263.61499, 263.64999, 263.53, 263.38501, 263.33011, 263.47501, 263.45001, 263.3577, 263.28, 263.20001, 263.215, 263.20001, 263.19, 263.24039, 263.4299, 263.28, 263.44, 263.40991, 263.50061, 263.65991, 263.75, 263.82999, 263.81, 263.72, 263.76999, 264.13, 264.42001, 264.10001, 264.1001, 264.42999, 264.57999, 264.625, 264.67001, 264.60001, 264.59]
+# Labels data: ['2026-02-20 14:20:00', '2026-02-20 14:21:00', '2026-02-20 14:22:00', '2026-02-20 14:23:00', '2026-02-20 14:24:00', '2026-02-20 14:25:00', '2026-02-20 14:26:00', '2026-02-20 14:27:00', '2026-02-20 14:28:00', '2026-02-20 14:29:00', '2026-02-20 14:30:00', '2026-02-20 14:31:00', '2026-02-20 14:32:00', '2026-02-20 14:33:00', '2026-02-20 14:34:00', '2026-02-20 14:35:00', '2026-02-20 14:36:00', '2026-02-20 14:37:00', '2026-02-20 14:38:00', '2026-02-20 14:39:00', '2026-02-20 14:40:00', '2026-02-20 14:41:00', '2026-02-20 14:42:00', '2026-02-20 14:43:00', '2026-02-20 14:44:00', '2026-02-20 14:45:00', '2026-02-20 14:46:00', '2026-02-20 14:47:00', '2026-02-20 14:48:00', '2026-02-20 14:49:00', '2026-02-20 14:50:00', '2026-02-20 14:51:00', '2026-02-20 14:52:00', '2026-02-20 14:53:00', '2026-02-20 14:54:00', '2026-02-20 14:55:00', '2026-02-20 14:56:00', '2026-02-20 14:57:00', '2026-02-20 14:58:00', '2026-02-20 14:59:00', '2026-02-20 15:00:00', '2026-02-20 15:01:00', '2026-02-20 15:02:00', '2026-02-20 15:03:00', '2026-02-20 15:04:00', '2026-02-20 15:05:00', '2026-02-20 15:06:00', '2026-02-20 15:07:00', '2026-02-20 15:08:00', '2026-02-20 15:09:00', '2026-02-20 15:10:00', '2026-02-20 15:11:00', '2026-02-20 15:12:00', '2026-02-20 15:13:00', '2026-02-20 15:14:00', '2026-02-20 15:15:00', '2026-02-20 15:16:00', '2026-02-20 15:17:00', '2026-02-20 15:18:00', '2026-02-20 15:19:00', '2026-02-20 15:20:00', '2026-02-20 15:21:00', '2026-02-20 15:22:00', '2026-02-20 15:23:00', '2026-02-20 15:24:00', '2026-02-20 15:25:00', '2026-02-20 15:26:00', '2026-02-20 15:27:00', '2026-02-20 15:28:00', '2026-02-20 15:29:00', '2026-02-20 15:30:00', '2026-02-20 15:31:00', '2026-02-20 15:32:00', '2026-02-20 15:33:00', '2026-02-20 15:34:00', '2026-02-20 15:35:00', '2026-02-20 15:36:00', '2026-02-20 15:37:00', '2026-02-20 15:38:00', '2026-02-20 15:39:00', '2026-02-20 15:40:00', '2026-02-20 15:41:00', '2026-02-20 15:42:00', '2026-02-20 15:43:00', '2026-02-20 15:44:00', '2026-02-20 15:45:00', '2026-02-20 15:46:00', '2026-02-20 15:47:00', '2026-02-20 15:48:00', '2026-02-20 15:49:00', '2026-02-20 15:50:00', '2026-02-20 15:51:00', '2026-02-20 15:52:00', '2026-02-20 15:53:00', '2026-02-20 15:54:00', '2026-02-20 15:55:00', '2026-02-20 15:56:00', '2026-02-20 15:57:00', '2026-02-20 15:58:00', '2026-02-20 15:59:00']
     
 
 def insider_transaction_trading(stock_ticker: str,):
@@ -436,18 +448,47 @@ def insider_transaction_trading(stock_ticker: str,):
         insider_informtion.append({
             "mspr": data.get("mspr"),
         })
-        
-    
-    
-        
-    
-    
-    
-    
+
     
     
     
     return sentiment_data
+
+
+def insider_transaction_trading(stock_ticker: str,):
+    stock_ticker = stock_ticker.upper()
+    
+    today = date.today().isoformat()
+
+    insider_informtion = []
+
+    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
+    
+    
+    insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
+    
+    for insider in insider_trading_info.get("data", []):
+        insider_informtion.append({
+            "name": insider.get("name"),
+            "relationship": insider.get("relationship"),
+            "transactionDate": insider.get("transactionDate"),
+            "transactionType": insider.get("transactionType"),
+            "sharesTraded": insider.get("sharesTraded"),
+            "sharePrice": insider.get("sharePrice"),
+        })
+        
+        
+    return insider_informtion
+
+
+
+
+    
+    # Grab the data for the insider trading and store it in a json_information
+
+    
+    
+    
 
 
 def redirect_url_snaptrade(request):
@@ -513,8 +554,6 @@ def top_news():
         )
         
     return sorted_news[:5]
-
-
 
 
 
