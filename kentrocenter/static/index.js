@@ -2,6 +2,10 @@ const canvases = document.querySelectorAll('.gainerGraph')
 const losing_canvases = document.querySelectorAll('.loserGraph')
 
 canvases.forEach((canvas, index) => {
+
+  canvas.addEventListener('click', () => {
+    window.location.href = `/stock/${ticker_winner[index]}/`
+  })
   new Chart(canvas, {
     type: 'line',
 
@@ -37,6 +41,9 @@ canvases.forEach((canvas, index) => {
 })
 
 losing_canvases.forEach((canvas, index) => {
+    canvas.addEventListener('click', () => {
+    window.location.href = `/stock/${ticker_winner[index]}/`
+  })
   new Chart(canvas, {
     type: 'line',
     data: {

@@ -132,12 +132,16 @@ def stock_data(stock_ticker: str):
         # We have to reverse the data so that we can have the most recent data at the end of the list, which will be used for Chart.JS
         ticker_data = ticker_data.iloc[::-1]
 
-        price = [float(value) for value in ticker_data["close"].tolist()]
+        price = ([float(value) for value in ticker_data["close"].tolist()])
         
-        labels = [timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index]
+        labels = ([timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index])
         
         print("Price data:", price)
         print("Labels data:", labels)
+    
+    
+    
+
      
      
         return {"price": price, "labels": labels}
@@ -412,16 +416,14 @@ def stock(request, stock_ticker:str):
     # Grab insider trading information for the stock, LEGAL OFC, IT'S FROM THE SEC LOL
     insider_trading_data = insider_transaction_trading(stock_url)
     
-
-    
-    
-    
-    
-    
-    
-    
     
     context = {
+        "stock_ticker": stock_url,
+        "price_history": price_history,
+        "labels": labels,
+        "stock_news_data": stock_news_data,
+        "insider_trading_data": insider_trading_data,
+        
     }
     return render(request, 'base/stock_view.html', context)
     
