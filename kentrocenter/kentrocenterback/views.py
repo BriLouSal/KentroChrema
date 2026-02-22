@@ -149,8 +149,7 @@ def stock_data(stock_ticker: str):
         # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\
 
             
-        tickers = []
-        
+
 
 
     except Exception as e:
@@ -172,6 +171,20 @@ def dailyWinners():
 
         # Prepare it for JSON dump and call it in search views.py
         result = []
+        for symbols in sorted_gainers:
+            symbol = symbols.get('symbol')
+            percentage = symbols.get('regularMarketChangePercent')
+            price = Ticker(symbol)
+
+            hist = price.history(period='1d', interval='15m').reset_index()
+            price = hist["close"].tolist()
+            result.append({
+                'ticker':  symbol,
+                'price': price,
+                'percent': round(float(percentage), 2)
+
+            })
+            
 
     
         return result
@@ -384,12 +397,21 @@ def stock(request, stock_ticker:str):
     
     stock_ticker_data = stock_data(stock_url)
     
+    # Grab news for the stock and the seniment score for the news
+    stock_news_data = stock_news(stock_url)
+    
+    #
+    
+    stock_headline = stock_news_data['headline'] if stock_news_data else "No news available"
+    
+    
+    
+    
     
     
     
     
     context = {
-        "stock_data": stock_data(stock_url)
     }
     return render(request, 'base/stock_view.html', context)
     
@@ -406,6 +428,8 @@ def insider_transaction_trading(stock_ticker: str,):
     
     
     sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
+    
+    
     
     # Grab the data for
     for data in sentiment_data.get("data", []):
@@ -437,8 +461,25 @@ def redirect_url_snaptrade(request):
 
 
 
-def stock_news(data):
-    pass
+def stock_news(stock: str):
+    sentiment_stock_score = SentimentIntensityAnalyzer()
+    finnhub_client_stock_news = finnhub_client.company_news(stock, _from=(date.today() - relativedelta(days=7)).isoformat(), to=date.today().isoformat())
+    stock_news_data = []
+    
+    for news in finnhub_client_stock_news:
+        headline = news.get("headline", "")
+        stock_news_data.append({
+            "headline": news["headline"],
+            "summary": news["summary"],
+            "link": news['url'],
+            "sentiment_score": sentiment_stock_score.polarity_scores(headline)["compound"],
+        })
+    sorted_stock_news = sorted(
+        stock_news_data,
+        key=lambda x: abs(x["sentiment_score"]),
+        reverse=True,
+    )
+    return sorted_stock_news[:5]
 
 # We'd want to JSON Serialize this one on home views
 
@@ -458,6 +499,7 @@ def top_news():
             "sentiment_score": sentiment_score.polarity_scores(headline)["compound"],
             # use absolute polarity score and we'll sort it via lambda
             "impact_score": abs(sentiment_score.polarity_scores(headline)["compound"]),
+            
         
             
         })

@@ -19,7 +19,18 @@
     </div>
 
     <!--  -->
-    <div class="stock-order"></div>
+    <div class="stock-order">
+      <div class="stock-chart">
+        <canvas id="stockChart" class="w-full h-full"></canvas>
+      </div>
+      <div class="stock-info">
+        <h1 class="text-3xl font-bold mb-4">{{ request.resolver_match.kwargs.stock_ticker }}</h1>
+        <p class="text-gray-700 mb-2">Current Price: ${{ stock_data.current_price }}</p>
+        <p class="text-gray-700 mb-2">Change: {{ stock_data.change }}%</p>
+        <p class="text-gray-700 mb-2">Volume: {{ stock_data.volume }}</p>
+        <!-- Add more stock information as needed -->
+      </div>
+    </div>
 
 
 
