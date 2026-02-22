@@ -5,12 +5,5 @@ kentrocenter/kentrocenterback/KOSAI.py
 kentrocenter/kentrocenter/settings.py
 kentrocenter/kentrocenterback/backend.py
 kentrocenter/kentrocenterback/models.py
-kentrocenter/kentrocenterback/__pycache__/KOSAI.cpython-311.pyc
-kentrocenter/kentrocenterback/__pycache__/models.cpython-311.pyc
-kentrocenter/kentrocenter/__pycache__/__init__.cpython-311.pyc
-kentrocenter/kentrocenter/__pycache__/urls.cpython-311.pyc
-kentrocenter/kentrocenter/__pycache__/settings.cpython-311.pyc
-kentrocenter/kentrocenter/__pycache__/wsgi.cpython-311.pyc
-kentrocenter/kentrocenterback/__pycache__/views.cpython-311.pyc
-kentrocenter/kentrocenterback/__pycache__/backend.cpython-311.pyc
-kentrocenter/kentrocenterback/__pycache__/__init__.cpython-311.pyc
+*.pyc
+__pycache__/
