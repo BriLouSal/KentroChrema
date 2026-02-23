@@ -298,17 +298,47 @@ def signup_page(request):
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
 
 @receiver(social_account_added)
-def email_google_activation(sender, request, sociallogin, **kwargs):
+def email_google_activation(request, user, **kwargs):
     # Create the account for them and create profile
-    user = sociallogin.user
+    
     # Create the profile
-    profile, created = Profile.objects.get_or_create(user=user)
+    profile, _ = Profile.objects.get_or_create(user=user)
 
     profile.is_verified = True
     profile.save()
 
     user.is_active = True
     user.save()
+    
+    try:
+        snaptrade_account_register(user)
+    except Exception as e:
+        print(f"SnapTrade registration failed for user {user.username}: {e}")
+        
+    
+@receiver(social_account_added)
+def email_microsoft_activation(request, user, **kwargs):
+    # Create the account for them and create profile
+    
+    # Create the profile
+    profile, _ = Profile.objects.get_or_create(user=user)
+
+    profile.is_verified = True
+    profile.save()
+
+    user.is_active = True
+    user.save()
+    
+    try:
+        snaptrade_account_register(user)
+    except Exception as e:
+        print(f"SnapTrade registration failed for user {user.username}: {e}")
+        
+    
+        
+    
+    
+    
 
 
 # Create a views where the user can enter their StockPortfolio signup to Wealthsimple, Shakepay, etc.
