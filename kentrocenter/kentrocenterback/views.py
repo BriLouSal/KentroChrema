@@ -459,7 +459,7 @@ def stock(request, stock_ticker:str):
     
   
 
-def insider_transaction_trading(stock_ticker: str,):
+def insider_transaction_trading_sentiment(stock_ticker: str,):
     stock_ticker = stock_ticker.upper()
     
     today = date.today().isoformat()
@@ -472,6 +472,7 @@ def insider_transaction_trading(stock_ticker: str,):
     sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
     
     
+
     
     # Grab the data for
     for data in sentiment_data.get("data", []):
