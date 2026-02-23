@@ -446,6 +446,11 @@ def stock(request, stock_ticker:str):
     # Grab insider trading information for the stock, LEGAL OFC, IT'S FROM THE SEC LOL
     insider_trading_data = insider_transaction_trading(stock_url)
     
+    insider_transaction_data_sentiment = insider_transaction_trading_sentiment(stock_url)
+    
+    
+    
+    
     
     context = {
         "stock_ticker": stock_url,
@@ -453,6 +458,7 @@ def stock(request, stock_ticker:str):
         "labels": labels,
         "stock_news_data": stock_news_data,
         "insider_trading_data": insider_trading_data,
+        'insider_transaction_data_sentiment': insider_transaction_data_sentiment,
         
     }
     return render(request, 'base/stock_view.html', context)
