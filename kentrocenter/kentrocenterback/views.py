@@ -524,7 +524,8 @@ def insider_transaction_trading(stock_ticker: str,):
     # Grab the data for the insider trading and store it in a json_information
 
     
-    
+
+
     
 
 
