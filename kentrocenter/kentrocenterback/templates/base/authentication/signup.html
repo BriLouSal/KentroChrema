@@ -68,7 +68,7 @@
                             <span class="flex-shrink mx-4 text-gray-400 text-sm uppercase tracking-wide">
                                 Or continue with
                             </span>
-                            <a href="{% provider_login_url 'google' %}"
+                            <a href="{% provider_login_url 'google' next=request.path %}"
                             class="flex items-center justify-center gap-3 w-full 
                                     bg-white border border-gray-300 
                                     rounded-lg py-3 px-4
