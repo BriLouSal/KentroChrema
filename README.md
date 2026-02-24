@@ -13,12 +13,13 @@ KentroCherma is a Python-powered centralized investment platform that allows use
 
 # API USED:
 * SnapTrade API will allow us to connect investment platforms, whilst Anthropic API will be used to summarize information of the stock that will utilize TwelveData dataset which the investors can use to make informed decisions on their investments.
+* Additionally, I will use the Finnhub API to get sentiment and news data on the stocks, which will provide insights to investors on their investments, and help them make informed decisions on their investments. The data will be used to provide insights to investors on their investments, and help them make informed decisions on their investments.
   
 
 # DEMO:
 ![home](home(demoversion2).png)
 ![snaptrade](snaptrade.png)
 ![verification](verificationsystem.png)
-![stockinfo](stockviews.png.png)
+![stockinfo](stockviews.png)
 
 
