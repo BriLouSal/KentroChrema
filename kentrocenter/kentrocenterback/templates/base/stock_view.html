@@ -7,106 +7,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ request.resolver_match.kwargs.stock_ticker }}</title>
   </head>
- <body class="bg-[#0B1426] text-gray-200 min-h-screen">
-
-  <!-- Top Navbar -->
-  <div class="flex justify-between items-center px-8 py-4 border-b border-gray-800">
-    <h1 class="text-xl font-semibold tracking-wide">Market Dashboard</h1>
-    <div class="flex gap-6 text-sm">
-      <a href="{% url 'portfolio' %}" class="hover:text-green-400 transition">Portfolio</a>
-      <a href="{% url 'logout' %}" class="hover:text-red-400 transition">Logout</a>
+  <body class="bg-[#0B1426] text-gray-200 min-h-screen">
+    <!-- Top Navbar -->
+    <div
+      class="flex justify-between items-center px-8 py-4 border-b border-gray-800"
+    >
+      <h1 class="text-xl font-semibold tracking-wide">Market Dashboard</h1>
+      <div class="flex gap-6 text-sm">
+        <a href="{% url 'portfolio' %}" class="hover:text-green-400 transition"
+          >Portfolio</a
+        >
+        <a href="{% url 'logout' %}" class="hover:text-red-400 transition"
+          >Logout</a
+        >
+      </div>
     </div>
-  </div>
 
-  <div class="max-w-7xl mx-auto p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="max-w-7xl mx-auto p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 flex flex-col gap-8">
+        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-3xl font-bold">
+                {{ request.resolver_match.kwargs.stock_ticker }}
+              </h2>
 
-    <div class="lg:col-span-2 flex flex-col gap-8">
+              <div class="flex items-center gap-4 mt-2">
+                <span
+                  id="current-price"
+                  class="text-2xl font-semibold text-green-400"
+                >
+                  $0.00
+                </span>
+                <span
+                  id="price-change"
+                  class="text-sm px-3 py-1 rounded-lg bg-green-500/20 text-green-400"
+                >
+                  +0.00%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+        <!-- Wrapper for the card -->
+        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          <h3 class="text-lg font-semibold mb-4">Price Chart</h3>
+          <div style="position: relative; height: 16rem">
+            <canvas id="stockChart"></canvas>
+          </div>
+        </div>
 
-        <div class="flex justify-between items-center">
-          <div>
-            <h2 class="text-3xl font-bold">
-              {{ request.resolver_match.kwargs.stock_ticker }}
-            </h2>
+        <!-- Add news section, allowing for news section to be seperated -->
+        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          <h3 class="text-lg font-semibold mb-4">Market News</h3>
+          <div
+            id="news-container"
+            class="flex flex-col gap-4 text-sm text-gray-400"
+          ></div>
+        </div>
+      </div>
 
-            <div class="flex items-center gap-4 mt-2">
-              <span id="current-price" class="text-2xl font-semibold text-green-400">
-                $0.00
-              </span>
-              <span id="price-change" class="text-sm px-3 py-1 rounded-lg bg-green-500/20 text-green-400">
-                +0.00%
-              </span>
+      <div class="flex flex-col gap-8">
+        <!-- Sentiment Card, insider sentiment, etc. -->
+        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          <h3 class="text-lg font-semibold mb-4">Market Sentiment</h3>
+          <div class="text-3xl font-bold text-green-400">+45</div>
+          <div class="mt-4 text-sm text-gray-400">
+            <div class="flex justify-between">
+              <span>Buy Pressure</span>
+              <span class="text-green-400">68%</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Sell Pressure</span>
+              <span class="text-red-400">32%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk  Sentiment Card -->
+        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          <h3 class="text-lg font-semibold mb-4">Risk Assessment</h3>
+          <div class="flex items-center justify-center">
+            <div
+              class="w-24 h-24 rounded-full border-4 border-yellow-400 flex items-center justify-center text-xl font-bold"
+            >
+              35
+            </div>
+          </div>
+          <div class="mt-4 text-sm text-gray-400 space-y-2">
+            <div class="flex justify-between">
+              <span>Volatility</span>
+              <span>18.3%</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Beta</span>
+              <span>1.28</span>
             </div>
           </div>
         </div>
       </div>
-
-
-      <!-- Wrapper for the card -->
-      <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-        <h3 class="text-lg font-semibold mb-4">Price Chart</h3>
-        <canvas id="stockChart" class="w-full h-64"></canvas>
-      </div>
-
-      <!-- Add news section, allowing for news section to be seperated -->
-      <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-        <h3 class="text-lg font-semibold mb-4">Market News</h3>
-        <div id="news-container" class="flex flex-col gap-4 text-sm text-gray-400">
-        </div>
-      </div>
-
     </div>
-
-    
-    <div class="flex flex-col gap-8">
-
-      <!-- Sentiment Card, insider sentiment, etc. -->
-      <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-        <h3 class="text-lg font-semibold mb-4">Market Sentiment</h3>
-        <div class="text-3xl font-bold text-green-400">+45</div>
-        <div class="mt-4 text-sm text-gray-400">
-          <div class="flex justify-between">
-            <span>Buy Pressure</span>
-            <span class="text-green-400">68%</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Sell Pressure</span>
-            <span class="text-red-400">32%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Risk  Sentiment Card -->
-      <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-        <h3 class="text-lg font-semibold mb-4">Risk Assessment</h3>
-        <div class="flex items-center justify-center">
-          <div class="w-24 h-24 rounded-full border-4 border-yellow-400 flex items-center justify-center text-xl font-bold">
-            35
-          </div>
-        </div>
-        <div class="mt-4 text-sm text-gray-400 space-y-2">
-          <div class="flex justify-between">
-            <span>Volatility</span>
-            <span>18.3%</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Beta</span>
-            <span>1.28</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
     <!-- Left side: The Financial information overlay -->
 
     {% block scripts %}
     <script>
-      const stockData = {{ stock_data|safe }};
-      const stockTicker = {{stock_ticker | safe }};
-      
+      const stockData = {{ price_history|safe }};
+      const chartLabels = {{ labels|safe }};
+      const stockTicker = "{{ stock_ticker }}";
       const newsData = {{ stock_news_data|safe }};
     </script>
 
