@@ -52,15 +52,11 @@ def stock_data(stock_ticker: str):
         labels = ([timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index])
         
         stock_price = ticker_data["close"].iloc[-1]
-        
-        print("Price data:", price)
-        print("Labels data:", labels)
-        print("Stock price:", stock_price)
-    
+
 
      
      
-        return {"price": price, "labels": labels}
+        return {"price": price, "labels": labels, "stock_price": stock_price}
         
         
             

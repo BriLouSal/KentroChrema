@@ -364,6 +364,7 @@ def verification_page(request):
     
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
+    
     # Have our dailyWnners and Daily losers at the start, similar to our
     daily_winners = dailyWinners()
     daily_losers = dailyLosers()
@@ -383,8 +384,7 @@ def home(request):
         "label_ticker_losers": ticker_of_losers,
         "percentage_winners": percentage_winners,
         "percentage_losing": percentage_losing,
-        "news_information" : top_news(),
-        "stock_data": stock_data("AAPL")  
+        "news_information" : top_news()
 
     }
  
@@ -405,9 +405,6 @@ def stock(request, stock_ticker:str):
     
     price_history =  json.dumps(stock_ticker_data.get("price", []))
     labels =  json.dumps(stock_ticker_data.get("labels", []))
-    print("Price history:", price_history)
-    print("Labels:", labels)
-    
     
     # Grab news for the stock and the seniment score for the news
     stock_news_data = stock_news(stock_url)
@@ -505,7 +502,6 @@ def snaptrade_link_views_wealthsimple(request):
             custom_redirect=url_redirecter_to_kentrocherma,
         )
 
-        print("SnapTrade response:", login_link.body) 
 
         redirect_uri = login_link.body.get("redirectURI")
 

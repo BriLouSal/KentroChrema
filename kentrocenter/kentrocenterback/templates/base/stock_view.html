@@ -87,15 +87,15 @@
 
             <!-- Meta info -->
             <div class="flex items-center gap-3 text-xs text-gray-400 mt-2">
-              <span>Source</span>
+              <span>Imppact Score</span>
 
-              {% if news.sentiment_score|floatformat:2 > 0.5 %}
-              <span class="text-red-400 font-semibold">HIGH IMPACT</span>
-              {% elif news.sentiment_score|floatformat:2 > 0.2 %}
-              <span class="text-yellow-400 font-semibold">MEDIUM IMPACT</span>
+              {% if news.impact_score > 0.5 %}
+              <span class="text-red-400 font-semibold">HIGH IMPACT {{ news.impact_score }}</span>
+              {% elif news.impact_score > 0.2 %}
+              <span class="text-yellow-400 font-semibold">MEDIUM IMPACT {{ news.impact_score }}</span>
               {% else %}
-              <span class="text-blue-400 font-semibold">LOW IMPACT</span>
-              {% endif %}
+              <span class="text-blue-400 font-semibold">LOW IMPACT {{ news.impact_score }}</span>
+              {% endif %} 
             </div>
           </a>
         </div>
