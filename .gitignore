@@ -8,3 +8,5 @@ kentrocenter/kentrocenterback/backend.py
 kentrocenter/kentrocenterback/financial_models.py
 *.pyc
 __pycache__/
+kentrocenter/kentrocenterback/sync_centralized.py
+.env

@@ -1,9 +1,11 @@
+import uuid
+
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail, EmailMessage
 from django.contrib import messages
-from .models import EmailVerificationCode, Profile
+from .models import EmailVerificationCode, Profile, BrokerageAccount, Holding, PortfolioTime
 from django.core.mail import send_mail
 from random import randint
 from django.conf import settings
@@ -53,9 +55,10 @@ from .financial_service import (
     dailyWinners,
     dailyLosers,
     insider_recent_trader,
-    insider_transaction_trading_sentiment
+    insider_transaction_trading_sentiment,
 )
 
+from .sync_centralized import sync_to_snaptrade
 
 from . financial_models import(
     bullish_indicator,
@@ -268,6 +271,20 @@ def signup_page(request):
 
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
 
+def snaptrade_account_register(user):
+    # If the user exist just return, so we don't get duplicate
+    profile, created = Profile.objects.get_or_create(user=user)
+    if  profile.snaptrade_user_id:
+        return
+    snaptrade_user_id = f"user_{user.id}_{uuid.uuid4().hex[:8]}"
+    response = SnapTradeAPI_ACTIVATE.authentication.register_snap_trade_user(
+    user_id=snaptrade_user_id
+)
+    profile.snaptrade_user_id = snaptrade_user_id
+    profile.snaptrade_user_secret = response.body["userSecret"]
+    profile.save()
+
+
 @receiver(social_account_added)
 def email_google_activation(request, user, **kwargs):
     # Create the account for them and create profile
@@ -451,7 +468,9 @@ def stock(request, stock_ticker:str):
 def redirect_url_snaptrade(request):
     status = request.GET.get("status")
     if status == "SUCCESS":
+        
         return redirect("home")
+        
     messages.warning(request, f"Connection status: {status or 'Cancelled'}")
     return redirect("home")
 
@@ -487,6 +506,8 @@ def stock_news(stock: str):
 # TODO; Snaptrade link account
 def snaptrade_link_views_wealthsimple(request):
     profile = request.user.profile
+    
+
 
     if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:
         messages.error(request, "SnapTrade account not initialized.")
@@ -495,13 +516,15 @@ def snaptrade_link_views_wealthsimple(request):
     try:
         
         url_redirecter_to_kentrocherma = request.build_absolute_uri(reverse('snaptrade_callback'))
+
+        
         login_link = SnapTradeAPI_ACTIVATE.authentication.login_snap_trade_user(
             user_id=profile.snaptrade_user_id,
             user_secret=profile.snaptrade_user_secret,
             # Use custom_redirect
+            
             custom_redirect=url_redirecter_to_kentrocherma,
         )
-
 
         redirect_uri = login_link.body.get("redirectURI")
 
@@ -509,7 +532,12 @@ def snaptrade_link_views_wealthsimple(request):
             messages.error(request, "SnapTrade failed to generate link.")
             return redirect("home")
 
+
+
         return redirect (redirect_uri)
+    
+    
+    
 
     except Exception as e:
         print("SnapTrade ERROR:", e)
@@ -527,11 +555,21 @@ def account_link_porfolio(request):
         return redirect('home')
 
 
-
-
-
     
 def user_portfolio(request):
+    # Now for this one we gotta grab our snaptrade user id and also grab portfolio models and holdings models and then we can display it on the portfolio page, and we can also have a error handling that will ensure if there's a case where the User hasn't registered or haven't synced their account, so we can just display a message that they should link their account to see their portfolio, and then we can have a button that will redirect them to the snaptrade_link_views_wealthsimple view that will allow them to link their account, and then after they link their account we can redirect them back to the portfolio page and then we can display their portfolio information, such as their total value and also their holdings and also the performance of their portfolio, such as how much they gained or lost in the last day or in the last week or in the last month, etc.
+    
+    profile = request.user.profile
+    # We wanna warn user right, so we add swalfire for this one
+    if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:
+        messages.warning(request, "Please link your SnapTrade account to view your portfolio.")
+        return redirect('home')
+    accounts = BrokerageAccount.objects.filter(snaptrade_user_id=profile.snaptrade_user_id)
+    if not accounts.exists():  
+        return redirect('home')
+    
+    
+    
     return render(request, 'base/portfolio.html')
 
 def loginpage(request):

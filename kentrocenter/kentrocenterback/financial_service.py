@@ -3,6 +3,10 @@ import twelvedata
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from twelvedata import TDClient
+from snaptrade_client import SnapTrade
+
+
+
 import finnhub
 from finnhub import Client
 import os
@@ -10,6 +14,9 @@ from dotenv import load_dotenv
 import ta
 import pandas as pd
 from yahooquery import Screener, Ticker
+
+from .models import BrokerageAccount, Holding, PortfolioTime
+
 
 load_dotenv()
 
@@ -28,6 +35,13 @@ finnhub_client = Client(api_key=FINNHUB_API)
 TWELVEDATA_API_KEY = os.getenv('TWELVEDATAAPI')
 
 
+# Plans: First we need to have our signup/authentication systems ready at any cost,
+
+
+CLIENT_ID = os.getenv('CLIENT_ID')
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
 
 
@@ -52,18 +66,9 @@ def stock_data(stock_ticker: str):
         labels = ([timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index])
         
         stock_price = ticker_data["close"].iloc[-1]
-
-
-     
-     
-        return {"price": price, "labels": labels, "stock_price": stock_price}
-        
-        
-            
-        
+         
+        return {"price": price, "labels": labels, "stock_price": stock_price}      
         # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\  
-
-
 
     except Exception as e:
         print(f"Error fetching stock data for {stock_ticker}: {e}")
@@ -181,3 +186,7 @@ def insider_transaction_trading_sentiment(stock_ticker: str,):
         })
     
     return sentiment_data
+
+
+
+
