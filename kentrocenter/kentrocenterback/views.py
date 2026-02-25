@@ -485,6 +485,7 @@ def insider_transaction_trading_sentiment(stock_ticker: str,):
         insider_informtion.append({
             "mspr": data.get("mspr"),
         })
+        
 
     
     
