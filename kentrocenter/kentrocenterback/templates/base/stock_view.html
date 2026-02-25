@@ -12,7 +12,7 @@
     <div
       class="flex justify-between items-center px-8 py-4 border-b border-gray-800"
     >
-      <h1 class="text-xl font-semibold tracking-wide">Market Dashboard</h1>
+      <h1 class="text-xl font-semibold tracking-wide">KentroCherma</h1>
       <div class="flex gap-6 text-sm">
         <a href="{% url 'portfolio' %}" class="hover:text-green-400 transition"
           >Portfolio</a
@@ -20,7 +20,7 @@
         <a href="{% url 'logout' %}" class="hover:text-red-400 transition"
           >Logout</a
         >
-                <a href="{% url 'home' %}" class="hover:text-blue-400 transition"
+        <a href="{% url 'home' %}" class="hover:text-blue-400 transition"
           >Home</a
         >
       </div>
@@ -62,13 +62,44 @@
         </div>
 
         <!-- Add news section, allowing for news section to be seperated -->
-        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-          <h3 class="text-lg font-semibold mb-4">Market News</h3>
-          <div
-            id="news-container"
-            class="flex flex-col gap-4 text-sm text-gray-400"
-          ></div>
+        {% for news in stock_news_data %}
+        <div
+          class="bg-[#0F1B31] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition"
+        >
+          <a href="{{ news.link }}" target="_blank" class="block">
+            <!-- Headline -->
+            <div class="flex items-start gap-3">
+              <!-- Sentiment Icon -->
+              {% if news.sentiment_score > 0 %}
+              <span class="text-green-400 text-lg">▲</span>
+              {% elif news.sentiment_score < 0 %}
+              <span class="text-red-400 text-lg">▼</span>
+              {% else %}
+              <span class="text-gray-400 text-lg">●</span>
+              {% endif %}
+
+              <h4
+                class="text-gray-200 font-medium hover:text-blue-400 transition"
+              >
+                {{ news.headline }}
+              </h4>
+            </div>
+
+            <!-- Meta info -->
+            <div class="flex items-center gap-3 text-xs text-gray-400 mt-2">
+              <span>Source</span>
+
+              {% if news.sentiment_score|floatformat:2 > 0.5 %}
+              <span class="text-red-400 font-semibold">HIGH IMPACT</span>
+              {% elif news.sentiment_score|floatformat:2 > 0.2 %}
+              <span class="text-yellow-400 font-semibold">MEDIUM IMPACT</span>
+              {% else %}
+              <span class="text-blue-400 font-semibold">LOW IMPACT</span>
+              {% endif %}
+            </div>
+          </a>
         </div>
+        {% endfor %}
       </div>
 
       <div class="flex flex-col gap-8">
@@ -86,6 +117,20 @@
               <span class="text-red-400">32%</span>
             </div>
           </div>
+        </div>
+
+        <!-- Insider Traders recent activity -->
+        <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          {% for insider in insider_recent_trader %}
+          <div class="border-t border-gray-800 pt-4">
+            <div class="flex justify-between">
+              <span class="text-gray-200">{{ insider.name }}</span>
+              <!-- Check if insider is buying or selling -->
+
+              <span class="text-green-400">{{ insider.trading_activity }}</span>
+            </div>
+          </div>
+          {% endfor %}
         </div>
 
         <!-- Risk  Sentiment Card -->

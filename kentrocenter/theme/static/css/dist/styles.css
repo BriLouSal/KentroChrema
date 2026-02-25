@@ -275,6 +275,9 @@
   .mx-auto {
     margin-inline: auto;
   }
+  .mt-1 {
+    margin-top: calc(var(--spacing) * 1);
+  }
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
@@ -486,6 +489,10 @@
     border-style: var(--tw-border-style);
     border-width: 4px;
   }
+  .border-t {
+    border-top-style: var(--tw-border-style);
+    border-top-width: 1px;
+  }
   .border-b {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
@@ -532,6 +539,9 @@
   }
   .bg-\[\#0B1426\] {
     background-color: #0B1426;
+  }
+  .bg-\[\#0F1B31\] {
+    background-color: #0F1B31;
   }
   .bg-\[\#111C33\] {
     background-color: #111C33;
@@ -644,6 +654,9 @@
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
   }
+  .pt-4 {
+    padding-top: calc(var(--spacing) * 4);
+  }
   .text-center {
     text-align: center;
   }
@@ -740,6 +753,9 @@
   .text-blue-200 {
     color: var(--color-blue-200);
   }
+  .text-blue-400 {
+    color: var(--color-blue-400);
+  }
   .text-blue-600 {
     color: var(--color-blue-600);
   }
@@ -791,6 +807,9 @@
   .text-white {
     color: var(--color-white);
   }
+  .text-yellow-400 {
+    color: var(--color-yellow-400);
+  }
   .uppercase {
     text-transform: uppercase;
   }
@@ -837,6 +856,13 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
+  .hover\:border-gray-700 {
+    &:hover {
+      @media (hover: hover) {
+        border-color: var(--color-gray-700);
+      }
+    }
+  }
   .hover\:bg-blue-700 {
     &:hover {
       @media (hover: hover) {
@@ -848,6 +874,13 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-blue-800);
+      }
+    }
+  }
+  .hover\:text-blue-400 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-blue-400);
       }
     }
   }

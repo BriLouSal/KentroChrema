@@ -29,38 +29,6 @@ TWELVEDATA_API_KEY = os.getenv('TWELVEDATAAPI')
 
 
 
-def insider_transaction_trading(stock_ticker: str,):
-    """sumary_line
-    
-    Keyword arguments:
-    argument -- Stock ticker symbol (e.g., "AAPL" for Apple Inc.)
-    Return: it will return a list of dictionaries containing insider trading information, including the insider's name, relationship to the company, transaction date, transaction type, number of shares traded, and share price.
-    """
-    
-    stock_ticker = stock_ticker.upper()
-    
-    today = date.today().isoformat()
-
-    insider_informtion = []
-
-    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
-    
-    
-    insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
-    
-    for insider in insider_trading_info.get("data", []):
-        insider_informtion.append({
-            "name": insider.get("name"),
-            "relationship": insider.get("relationship"),
-            "transactionDate": insider.get("transactionDate"),
-            "transactionType": insider.get("transactionType"),
-            "sharesTraded": insider.get("sharesTraded"),
-            "sharePrice": insider.get("sharePrice"),
-        })
-        
-        
-    return insider_informtion
-
 
 
 def stock_data(stock_ticker: str):
@@ -169,3 +137,51 @@ def dailyLosers():
         return result
     except Exception as e:
         return []  # Return an empty list in case of any error, such as that we can raise API limit error or something like that, so we can just return an empty list and it won't break the website, and we can also add a message to the user that there's a issue with the API and that they should try again later.
+def insider_recent_trader(stock_ticker: str):
+    stock_ticker = stock_ticker.upper()
+    
+    today = date.today().isoformat()
+
+    insider_informtion = []
+
+    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
+    
+    
+    insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
+    
+    for insider in insider_trading_info.get("data", []):
+        insider_informtion.append({
+            "name": insider.get("name"),
+            "relationship": insider.get("relationship"),
+            "transactionDate": insider.get("transactionDate"),
+            "transactionType": insider.get("transactionType"),
+            "sharesTraded": insider.get("sharesTraded"),
+            "sharePrice": insider.get("sharePrice"),
+        })
+        
+        
+    return insider_informtion[:5]
+
+
+def insider_transaction_trading_sentiment(stock_ticker: str,):
+    stock_ticker = stock_ticker.upper()
+    
+    today = date.today().isoformat()
+
+    insider_informtion = []
+
+    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
+    
+    
+    sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
+    
+    
+
+    
+    # Grab the data for
+    for data in sentiment_data.get("data", []):
+        insider_informtion.append({
+            "mspr": data.get("mspr"),
+        })
+    
+    return sentiment_data

@@ -105,7 +105,7 @@ def stock_news(stock: str):
             "headline": news["headline"],
             "summary": news["summary"],
             "link": news['url'],
-            "sentiment_score": sentiment_stock_score.polarity_scores(headline)["compound"],
+            "sentiment_score": round(sentiment_stock_score.polarity_scores(headline)["compound"], 2),
         })
     sorted_stock_news = sorted(
         stock_news_data,
@@ -113,6 +113,8 @@ def stock_news(stock: str):
         reverse=True,
     )
     return sorted_stock_news[:5]
+
+
 
 
 def top_news():

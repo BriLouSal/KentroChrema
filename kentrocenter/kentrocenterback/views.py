@@ -47,20 +47,23 @@ from .KOSAI import(
     snaptrade_portfolio
 )
 
+
 from .financial_service import (
     stock_data,
-    insider_transaction_trading,
     dailyWinners,
-    dailyLosers
+    dailyLosers,
+    insider_recent_trader,
+    insider_transaction_trading_sentiment
+)
+
+
+from . financial_models import(
+    bullish_indicator,
 )
 
 
 
 
-# from .financial_models import(
-#     bullish_indicator,
-#     risk_models
-# )
 from .news import top_news, stock_news
 
 load_dotenv()
@@ -412,8 +415,7 @@ def stock(request, stock_ticker:str):
     
     
     # Grab insider trading information for the stock, LEGAL OFC, IT'S FROM THE SEC LOL
-    insider_trading_data = insider_transaction_trading(stock_url)
-    
+
     insider_transaction_data_sentiment = insider_transaction_trading_sentiment(stock_url)
     
     
@@ -425,66 +427,17 @@ def stock(request, stock_ticker:str):
         "price_history": price_history,
         "labels": labels,
         "stock_news_data": stock_news_data,
-        "insider_trading_data": insider_trading_data,
         'insider_transaction_data_sentiment': insider_transaction_data_sentiment,
+        'insider_recent_trader': insider_recent_trader(stock_url),
+        "bullish_indicator": bullish_indicator(stock_url)
         
     }
     return render(request, 'base/stock_view.html', context)
     
   
 
-def insider_transaction_trading_sentiment(stock_ticker: str,):
-    stock_ticker = stock_ticker.upper()
-    
-    today = date.today().isoformat()
-
-    insider_informtion = []
-
-    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
-    
-    
-    sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
-    
-    
-
-    
-    # Grab the data for
-    for data in sentiment_data.get("data", []):
-        insider_informtion.append({
-            "mspr": data.get("mspr"),
-        })
-        
-
-    
-    
-    
-    return sentiment_data
 
 
-def insider_transaction_trading(stock_ticker: str,):
-    stock_ticker = stock_ticker.upper()
-    
-    today = date.today().isoformat()
-
-    insider_informtion = []
-
-    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
-    
-    
-    insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
-    
-    for insider in insider_trading_info.get("data", []):
-        insider_informtion.append({
-            "name": insider.get("name"),
-            "relationship": insider.get("relationship"),
-            "transactionDate": insider.get("transactionDate"),
-            "transactionType": insider.get("transactionType"),
-            "sharesTraded": insider.get("sharesTraded"),
-            "sharePrice": insider.get("sharePrice"),
-        })
-        
-        
-    return insider_informtion
 
 
 
@@ -609,6 +562,9 @@ def loginpage(request):
             return render(request, 'base/login.html') # Stay here
             
     return render(request, 'base/authentication/login.html')
+
+
+
 
 
 def logout_page(request):

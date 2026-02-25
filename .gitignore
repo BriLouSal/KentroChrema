@@ -5,6 +5,6 @@ kentrocenter/kentrocenterback/KOSAI.py
 kentrocenter/kentrocenter/settings.py
 kentrocenter/kentrocenterback/models.py
 kentrocenter/kentrocenterback/backend.py
-kentrocenter/kentrocenterback/financial_models.py
+
 *.pyc
 __pycache__/
