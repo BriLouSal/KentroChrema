@@ -47,6 +47,22 @@ from .KOSAI import(
     snaptrade_portfolio
 )
 
+from .financial_service import (
+    stock_data,
+    insider_transaction_trading,
+    dailyWinners,
+    dailyLosers
+)
+
+
+
+
+# from .financial_models import(
+#     bullish_indicator,
+#     risk_models
+# )
+from .news import top_news, stock_news
+
 load_dotenv()
 
 
@@ -110,54 +126,6 @@ snaptrade = SnapTrade(
 
 # Referenece: https://marketstack.com/documentation
 # https://github.com/wsbinette/marketstack-api
-
-
-
-
-
-
-def stock_data(stock_ticker: str):
-    # I shall use marketstack for this one, as it has a lot of data and it's free, and it also has a python wrapper which is really good for us to use. and it's much more stable than Yahoo finance
-    twelvedata_client = TDClient(apikey=TWELVEDATA_API_KEY)
-    
-    try:
-        
-        ticker_data = twelvedata_client.time_series(
-            symbol=stock_ticker.upper(),
-            interval="1min",
-            outputsize=100
-            
-        ).as_pandas()
-        
-        # We have to reverse the data so that we can have the most recent data at the end of the list, which will be used for Chart.JS
-        ticker_data = ticker_data.iloc[::-1]
-
-        price = ([float(value) for value in ticker_data["close"].tolist()])
-        
-        labels = ([timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index])
-        
-        print("Price data:", price)
-        print("Labels data:", labels)
-    
-
-     
-     
-        return {"price": price, "labels": labels}
-        
-        
-
-            
-        
-        # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\
-
-            
-
-
-
-    except Exception as e:
-        print(f"Error fetching stock data for {stock_ticker}: {e}")
-        return None  # Return None or an appropriate value to indicate failure
-        
 
 
 def dailyWinners():
@@ -563,36 +531,6 @@ def stock_news(stock: str):
 
 # We'd want to JSON Serialize this one on home views
 
-def top_news():
-    # So we know it returns a Json data, so we'll have to iterate through it and make some empty list
-    sentiment_score = SentimentIntensityAnalyzer()
-    finnhub_client_news = finnhub_client.general_news('crypto', min_id=0)
-    news_data = []
-    for news in finnhub_client_news:
-        headline = news.get("headline", "")
-    
-        
-        news_data.append({
-            "headline": news["headline"],
-            "summary": news["summary"],
-            "link": news['url'],
-            "sentiment_score": sentiment_score.polarity_scores(headline)["compound"],
-            # use absolute polarity score and we'll sort it via lambda
-            "impact_score": abs(sentiment_score.polarity_scores(headline)["compound"]),
-            
-        
-            
-        })
-        # Sort it via the biggest imapct score, we'll use absolute numbers for this one 
-        # so we can have the highest impacts as possible -99.3 -> 99.3
-        
-        sorted_news = sorted(
-            news_data,
-            key=lambda x: x["impact_score"],
-            reverse=True,
-        )
-        
-    return sorted_news[:5]
 
 
 
