@@ -155,9 +155,9 @@ def insider_recent_trader(stock_ticker: str):
             "name": insider.get("name"),
             "relationship": insider.get("relationship"),
             "transactionDate": insider.get("transactionDate"),
-            "transactionType": insider.get("transactionType"),
+            "share": insider.get("share"),
             "sharesTraded": insider.get("sharesTraded"),
-            "sharePrice": insider.get("sharePrice"),
+            "sharePrice": insider.get("transactionPrice"),
         })
         
         

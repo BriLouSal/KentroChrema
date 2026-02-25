@@ -444,7 +444,7 @@ def stock(request, stock_ticker:str):
         'insider_transaction_data_sentiment': insider_transaction_data_sentiment,
         'insider_recent_trader': insider_recent_trader(stock_url),
         "bullish_indicator": bullish_indicator(stock_url),
-        'current_price': current_price,
+        'current_price': round(current_price,2),
         
     }
     return render(request, 'base/stock_view.html', context)

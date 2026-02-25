@@ -121,13 +121,19 @@
 
         <!-- Insider Traders recent activity -->
         <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+          <!-- Add Insider header -->
+          <h1 class=""></h1>
           {% for insider in insider_recent_trader %}
-          <div class="border-t border-gray-800 pt-4">
+          <div class=" bg-[#0F1B31] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition border-t 0 pt-4 flex flex-col">
             <div class="flex justify-between">
               <span class="text-gray-200">{{ insider.name }}</span>
               <!-- Check if insider is buying or selling -->
+              <!-- Make sure to have it flex row for this one -->
+               <div class="flex flex-row ">
+                  <span class="text-green-400">Shares: {{ insider.share }}</span>
+                  <span class="text-green-400">$: {{ insider.transactionPrice }}</span>
+               </div>
 
-              <span class="text-green-400">{{ insider.trading_activity }}</span>
             </div>
           </div>
           {% endfor %}
