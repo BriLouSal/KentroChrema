@@ -107,6 +107,7 @@ def stock_news(stock: str):
             "link": news['url'],
             "sentiment_score": round(sentiment_stock_score.polarity_scores(headline)["compound"], 2),
             "impact_score": abs(sentiment_stock_score.polarity_scores(headline)["compound"]),
+            "source": news["source"]
             
         })
     sorted_stock_news = sorted(

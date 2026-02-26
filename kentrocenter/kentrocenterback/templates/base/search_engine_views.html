@@ -1,0 +1,36 @@
+{% load static tailwind_tags %}
+<!doctype html>
+<html lang="en">
+  <head>
+    {% tailwind_css %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Menu</title>
+    <link rel="stylesheet" href="{% static 'home.css' %}" />
+  </head>
+  <body
+    class="bg-gray-200 min-h-screen flex flex-col gap-2 items-center justify-start p-4"
+  >
+    <div
+      class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl shadow-2xl w-full align-top p-4 gap-4"
+    >
+      <a href="{% url 'portfolio' %}" class="text-xl text-gray-900">Portfolio</a>
+      <a href="{% url 'logout' %}" class="text-xl text-gray-900">Logout</a>
+    </div>
+
+    <!-- We'll need to create a search engine via forms  -->
+    {% block scripts %}
+
+    <script>
+      const ticker_winner = {{label_ticker_winners | safe}};
+      const ticker_loser = {{label_ticker_losers | safe}};
+      const winner_percentage = {{percentage_winners | safe}};
+      const loser_percentage = {{percentage_losing | safe}};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+    <script src="{% static 'index.js' %}" defer></script>
+
+    {% endblock scripts %}
+  </body>
+</html>

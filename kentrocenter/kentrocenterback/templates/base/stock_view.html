@@ -78,11 +78,21 @@
               <span class="text-gray-400 text-lg">●</span>
               {% endif %}
 
-              <h4
-                class="text-gray-200 font-medium hover:text-blue-400 transition"
+              <div
+                class="text-gray-200 font-medium hover:text-blue-400 transition flex flex-col"
               >
-                {{ news.headline }}
-              </h4>
+                <h4
+                  class="text-gray-200 font-medium hover:text-blue-400 transition"
+                >
+                  {{ news.headline }}
+                </h4>
+
+                <h4
+                  class="text-neutral-500 font-medium hover:text-blue-400 transition"
+                >
+                  Source: {{news.source}}
+                </h4>
+              </div>
             </div>
 
             <!-- Meta info -->
@@ -90,12 +100,18 @@
               <span>Impact Score</span>
 
               {% if news.impact_score > 0.5 %}
-              <span class="text-red-400 font-semibold">HIGH IMPACT {{ news.impact_score }}</span>
+              <span class="text-red-400 font-semibold"
+                >HIGH IMPACT {{ news.impact_score }}</span
+              >
               {% elif news.impact_score > 0.2 %}
-              <span class="text-yellow-400 font-semibold">MEDIUM IMPACT {{ news.impact_score }}</span>
+              <span class="text-yellow-400 font-semibold"
+                >MEDIUM IMPACT {{ news.impact_score }}</span
+              >
               {% else %}
-              <span class="text-blue-400 font-semibold">LOW IMPACT {{ news.impact_score }}</span>
-              {% endif %} 
+              <span class="text-blue-400 font-semibold"
+                >LOW IMPACT {{ news.impact_score }}</span
+              >
+              {% endif %}
             </div>
           </a>
         </div>
@@ -105,8 +121,12 @@
       <div class="flex flex-col gap-8">
         <!-- Sentiment Card, insider sentiment, etc. -->
         <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-          <h3 class="text-lg font-semibold mb-4">Market Sentiment</h3>
-          <div class="text-3xl font-bold text-green-400">+45</div>
+          <h3 class="text-lg font-semibold mb-4">Bullish Indicator</h3>
+
+          <div class="flex justify-center items-center">
+            <canvas id="bullishIndicator" class="w-48 h-48"></canvas>
+          </div>
+
           <div class="mt-4 text-sm text-gray-400">
             <div class="flex justify-between">
               <span>Buy Pressure</span>
@@ -122,18 +142,23 @@
         <!-- Insider Traders recent activity -->
         <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
           <!-- Add Insider header -->
-          <h1 class=""></h1>
+          <h1 class="rounded-2xl">👥 Recent Insider Transaction</h1>
           {% for insider in insider_recent_trader %}
-          <div class=" bg-[#0F1B31] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition border-t 0 pt-4 flex flex-col">
-            <div class="flex justify-between">
+          <div
+            class="bg-[#0F1B31] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition border-t 0 pt-4 flex flex-col"
+          >
+            <div class="flex flex-col justify-between">
               <span class="text-gray-200">{{ insider.name }}</span>
               <!-- Check if insider is buying or selling -->
               <!-- Make sure to have it flex row for this one -->
-               <div class="flex flex-col ">
-                  <span class="text-green-400">Shares: {{ insider.share }}</span>
-                  <span class="text-green-400">$: {{ insider.transactionPrice }}</span>
-               </div>
-
+              <div class="flex flex-row gap-2">
+                <span class="text-neutral-500"
+                  >Shares: {{ insider.share }}</span
+                >
+                <span class="text-neutral-500"
+                  >@ ${{ insider.sharePrice }}</span
+                >
+              </div>
             </div>
           </div>
           {% endfor %}
@@ -170,6 +195,7 @@
       const chartLabels = {{ labels|safe }};
       const stockTicker = "{{ stock_ticker }}";
       const newsData = {{ stock_news_data|safe }};
+      const score = {{bullish_indicator | safe}};
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

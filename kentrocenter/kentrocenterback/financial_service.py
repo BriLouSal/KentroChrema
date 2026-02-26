@@ -58,6 +58,7 @@ def stock_data(stock_ticker: str):
             
         ).as_pandas()
         
+  
         # We have to reverse the data so that we can have the most recent data at the end of the list, which will be used for Chart.JS
         ticker_data = ticker_data.iloc[::-1]
 
@@ -67,6 +68,7 @@ def stock_data(stock_ticker: str):
         
         stock_price = float(ticker_data["close"].iloc[-1])
 
+        #
          
         return {"price": price, "labels": labels, "stock_price": stock_price}      
         # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\  
@@ -150,19 +152,23 @@ def insider_recent_trader(stock_ticker: str):
     
     
     insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
-    
     for insider in insider_trading_info.get("data", []):
         insider_informtion.append({
             "name": insider.get("name"),
-            "relationship": insider.get("relationship"),
             "transactionDate": insider.get("transactionDate"),
             "share": insider.get("share"),
             "sharesTraded": insider.get("sharesTraded"),
             "sharePrice": insider.get("transactionPrice"),
         })
         
+    sorted_score = sorted(
+        insider_informtion,
+        key= lambda x: (x["sharePrice"] * x["share"]),
+        reverse=True
+    )
         
-    return insider_informtion[:5]
+        
+    return sorted_score[:5]
 
 
 def insider_transaction_trading_sentiment(stock_ticker: str,):
@@ -185,6 +191,8 @@ def insider_transaction_trading_sentiment(stock_ticker: str,):
         insider_informtion.append({
             "mspr": data.get("mspr"),
         })
+        
+
     
     return sentiment_data
 

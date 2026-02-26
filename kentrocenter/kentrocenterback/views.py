@@ -427,7 +427,7 @@ def stock(request, stock_ticker:str):
     
     # Grab news for the stock and the seniment score for the news
     stock_news_data = stock_news(stock_url)
-    
+
     
     
     # Grab insider trading information for the stock, LEGAL OFC, IT'S FROM THE SEC LOL
@@ -458,7 +458,6 @@ def stock(request, stock_ticker:str):
 
 
 
-
     
     # Grab the data for the insider trading and store it in a json_information
 
@@ -481,25 +480,7 @@ def redirect_url_snaptrade(request):
 
 
 
-def stock_news(stock: str):
-    sentiment_stock_score = SentimentIntensityAnalyzer()
-    finnhub_client_stock_news = finnhub_client.company_news(stock, _from=(date.today() - relativedelta(days=7)).isoformat(), to=date.today().isoformat())
-    stock_news_data = []
-    
-    for news in finnhub_client_stock_news:
-        headline = news.get("headline", "")
-        stock_news_data.append({
-            "headline": news["headline"],
-            "summary": news["summary"],
-            "link": news['url'],
-            "sentiment_score": sentiment_stock_score.polarity_scores(headline)["compound"],
-        })
-    sorted_stock_news = sorted(
-        stock_news_data,
-        key=lambda x: abs(x["sentiment_score"]),
-        reverse=True,
-    )
-    return sorted_stock_news[:5]
+
 
 # We'd want to JSON Serialize this one on home views
 
