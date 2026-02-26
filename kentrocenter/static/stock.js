@@ -20,23 +20,15 @@ new Chart(ctx, {
     maintainAspectRatio: false,
     scales: {
       x: {
-        ticks: {
-          maxTicksLimit: 10,
-          autoSkip: true,
+        grid: {
           display: false
-        },
+        }
+      },
+      y: {
         grid: {
           display: false
         }
       }
-      // y: {
-      //   ticks: {
-      //     display: false
-      //   },
-      //   grid: {
-      //     display: false
-      //   }
-      // }
     }
   }
 })

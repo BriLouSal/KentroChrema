@@ -56,6 +56,7 @@ from .financial_service import (
     dailyLosers,
     insider_recent_trader,
     insider_transaction_trading_sentiment,
+    get_company_name
 )
 
 from .sync_centralized import sync_to_snaptrade
@@ -439,6 +440,9 @@ def stock(request, stock_ticker:str):
     bearish_indicator = bullish_indicator(stock_url)
     
     
+    percentage = stock_ticker_data['percentage']
+    company_name = get_company_name(stock_ticker)
+    
     
     context = {
         "stock_ticker": stock_url,
@@ -450,6 +454,8 @@ def stock(request, stock_ticker:str):
         "bullish_indicator": bullish_indicator(stock_url),
         "bearish_indicator":  100 - bearish_indicator, 
         'current_price': round(current_price,2),
+        'percent_change': round(percentage,2),
+        "name": company_name
         
     }
     return render(request, 'base/stock_view.html', context)

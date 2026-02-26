@@ -31,9 +31,10 @@
         <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
           <div class="flex justify-between items-center">
             <div>
-              <h2 class="text-3xl font-bold">
+              <h2 class="text-3xl font-bold">{{name}}</h2>
+              <p class="text-neutral-400 font-semibold">
                 {{ request.resolver_match.kwargs.stock_ticker }}
-              </h2>
+              </p>
 
               <div class="flex items-center gap-4 mt-2">
                 <span
@@ -42,12 +43,13 @@
                 >
                   ${{ current_price }}
                 </span>
-                <span
-                  id="price-change"
-                  class="text-sm px-3 py-1 rounded-lg bg-green-500/20 text-green-400"
-                >
-                  +0.00%
-                </span>
+                {% if percent_change > 0 %}
+                <span class="text-green-500">+{{ percent_change }}%</span>
+                {% elif percent_change < 0 %}
+                <span class="text-red-500">{{ percent_change }}%</span>
+                {% else %}
+                <span class="text-gray-400">{{ percent_change }}%</span>
+                {% endif %}
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ from twelvedata import TDClient
 from snaptrade_client import SnapTrade
 
 
+from datetime import datetime
 
 import finnhub
 from finnhub import Client
@@ -46,15 +47,15 @@ SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
 
 def stock_data(stock_ticker: str):
-    # I shall use marketstack for this one, as it has a lot of data and it's free, and it also has a python wrapper which is really good for us to use. and it's much more stable than Yahoo finance
+    # I shall use TwelveData for this one, as it has a lot of data and it's free, and it also has a python wrapper which is really good for us to use. and it's much more stable than Yahoo finance
     twelvedata_client = TDClient(apikey=TWELVEDATA_API_KEY)
     
     try:
         
         ticker_data = twelvedata_client.time_series(
             symbol=stock_ticker.upper(),
-            interval="1min",
-            outputsize=100
+            interval="5min",
+            outputsize=78
             
         ).as_pandas()
         
@@ -62,15 +63,23 @@ def stock_data(stock_ticker: str):
         # We have to reverse the data so that we can have the most recent data at the end of the list, which will be used for Chart.JS
         ticker_data = ticker_data.iloc[::-1]
 
+        # grab ticker_data close
+        ticker_data['close '] = ticker_data["close"].astype(float)
         price = ([float(value) for value in ticker_data["close"].tolist()])
         
-        labels = ([timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index])
+        labels = ([timestamp.strftime("%H:%M:%S") for timestamp in ticker_data.index])
+        # ("%Y-%m-%d %H:%M:%S" Yearly Interval
         
-        stock_price = float(ticker_data["close"].iloc[-1])
+        price_list = ticker_data["close"].tolist()
+        stock_price = price_list[-1]
+    
+        
+        opening_price = price_list[0]
 
+        percent_change = ((stock_price - opening_price) / opening_price) * 100
         #
          
-        return {"price": price, "labels": labels, "stock_price": stock_price}      
+        return {"price": price, "labels": labels, "stock_price": stock_price, 'percentage': percent_change}      
         # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\  
 
     except Exception as e:
@@ -199,3 +208,10 @@ def insider_transaction_trading_sentiment(stock_ticker: str,):
 
 
 
+def get_company_name(stock_ticker: str):
+    try:
+        profile = finnhub_client.company_profile2(symbol=stock_ticker.upper())
+        return profile.get("name", stock_ticker.upper())
+    except Exception as e:
+        print(f"Error fetching company name: {e}")
+        return stock_ticker.upper()
