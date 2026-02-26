@@ -489,6 +489,10 @@ def redirect_url_snaptrade(request):
 
 
 
+def search_views(request):
+    return render(request, 'base/search_engine_views.html')
+    
+
 
 
 # We'd want to JSON Serialize this one on home views

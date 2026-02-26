@@ -14,11 +14,39 @@
     <div
       class="navbar text-black flex flex-row bg-white items-end justify-end rounded-2xl shadow-2xl w-full align-top p-4 gap-4"
     >
-      <a href="{% url 'portfolio' %}" class="text-xl text-gray-900">Portfolio</a>
+      <a href="{% url 'portfolio' %}" class="text-xl text-gray-900"
+        >Portfolio</a
+      >
       <a href="{% url 'logout' %}" class="text-xl text-gray-900">Logout</a>
+      
+      <a href="{% url 'search_views' %}" class="text-xl text-gray-900"> Search </a>
     </div>
 
     <!-- We'll need to create a search engine via forms  -->
+
+       <div class="search-bar">
+      <h1 id="market">KentroCherma</h1>
+      <div class="search-container">
+         <!-- Wrapper for the autocomplete -->
+         <div class="search-container  w-full max-w-2xl mx-auto">
+            <div class="relative">
+            <form method="GET", action="{% url 'search_views' %}">
+            <input type="text" id="stockSearch" placeholder="Search for Stocks..." name="search" required 
+            class="w-full px-4 py-2 text-black bg-white rounded-md focus:outline-none" autocomplete="off ">
+            <button type="submit">Search</button>
+            
+            </form>
+            <div class="autocomplete hidden absolute top-full left-0 w-full
+                        bg-gray-900 border border-gray-600 mt-1 rounded-b-lg
+                        shadow-xl z-50 max-h-64 overflow-y-auto">
+            </div>
+
+
+            </div>
+            </form>
+
+         </div>
+
     {% block scripts %}
 
     <script>
@@ -29,7 +57,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
-    <script src="{% static 'index.js' %}" defer></script>
+    <script src="{% static 'search.js' %}" defer></script>
 
     {% endblock scripts %}
   </body>

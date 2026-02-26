@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.urls import path, include
 from django.conf import settings
-from . import views
+from . import views, search_engine
 
 
 urlpatterns  = [
@@ -22,11 +22,15 @@ urlpatterns  = [
     path('verification/', views.verification_page, name='verify'),
     path('portfolio/', views.user_portfolio, name='portfolio'),
     path('stock/<str:stock_ticker>/', views.stock, name='stock'),
-    path('logout/', views.logout_page, name='logout'),
+    path('logout/', views.logout_page, name='logout'), 
     path('snaptrade_verification/', views.snaptrade_link_views_wealthsimple, name='snaptrade_link'),
+    path('search_views/', views.search_views, name='search_views'),
     path('snaptrade_callback/', views.redirect_url_snaptrade, name='snaptrade_callback'),
     # API and Login methods
+    path("api/autocomplete/<str:letters>/", search_engine.information_letter, name="information_letter"),
     path('accounts/', include('allauth.urls')),
+    
+    
 ]
 
 if settings.DEBUG:
