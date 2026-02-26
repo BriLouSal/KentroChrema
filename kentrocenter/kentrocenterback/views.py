@@ -286,9 +286,9 @@ def snaptrade_account_register(user):
 
 
 @receiver(social_account_added)
-def email_google_activation(request, user, **kwargs):
+def email_google_activation(request, sociallogin, **kwargs):
     # Create the account for them and create profile
-    
+    user = sociallogin.user
     # Create the profile
     profile, _ = Profile.objects.get_or_create(user=user)
 
@@ -305,8 +305,10 @@ def email_google_activation(request, user, **kwargs):
         
     
 @receiver(social_account_added)
-def email_microsoft_activation(request, user, **kwargs):
+def email_microsoft_activation(request, sociallogin, **kwargs):
     # Create the account for them and create profile
+    
+    user = sociallogin.user
     
     # Create the profile
     profile, _ = Profile.objects.get_or_create(user=user)

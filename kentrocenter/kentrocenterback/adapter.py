@@ -14,7 +14,7 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
         if not email:
             return
         try:
-            existing_user = self.get_user(email=email)
+            existing_user = User.objects.get(email=email)
             if existing_user:
                 sociallogin.connect(request, existing_user)
         except User.DoesNotExist:

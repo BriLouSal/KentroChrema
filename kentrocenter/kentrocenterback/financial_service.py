@@ -66,6 +66,7 @@ def stock_data(stock_ticker: str):
         labels = ([timestamp.strftime("%Y-%m-%d %H:%M:%S") for timestamp in ticker_data.index])
         
         stock_price = float(ticker_data["close"].iloc[-1])
+
          
         return {"price": price, "labels": labels, "stock_price": stock_price}      
         # Now we have to parse the data and grab the price and the date, and we'll have to reverse it as well so that we can have the most recent data at the end of the list, which will be used for Chart.JS\  
