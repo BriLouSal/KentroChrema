@@ -53,75 +53,78 @@ new Chart(ctx, {
 // }
 
 // Add centre text for bulish indicator
+
+
+function pieGraphColor(score) {
+  if (score < 20) return '#d32f2f';
+  if (score < 40) return '#f57c00';
+  if (score < 60) return '#fbc02d';
+  if (score < 80) return '#7cb342';
+  return '#2e7d32';
+}
+
+
+// Add centre text for bulish indicator
 const centerText = {
   id: 'centerText',
-  afterDraw (chart) {
-    const {
-      ctx,
-      chartArea: { width, height }
-    } = chart
-    ctx.save()
+  afterDraw(chart) {
+    const { ctx, chartArea: { width, height } } = chart;
+    ctx.save();
 
-    ctx.font = 'bold 12px sans-serif'
-    ctx.fillStyle = '#ffffff'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('Bullish Indicator', width / 2, height / 2 - 30)
+
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Bullish Indicator', width / 2, height / 2 - 30);
+
 
     //  Muddle
-    ctx.font = 'bold 26px sans-serif'
-    ctx.fillStyle = '#ffffff'
-    ctx.fillText(`${score}%`, width / 2, height / 2)
+    ctx.font = 'bold 26px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${score}%`, width / 2, height / 2) ;
 
-    // Subtitle
-    ctx.font = ' 14px sans-serif'
-    ctx.fillStyle = '#ffffff'
-    ctx.fillText(`Bullish Score`, width / 2, height / 2 + 28)
-    ctx.restore()
+    // Subtitle 
+    ctx.font = ' 14px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`Bullish Score`, width / 2, height / 2 + 28) ;
+    ctx.restore();
   }
-}
+};
 
 
-
-function pieGraphColor (score) {
-  if (score < 20) return '#d32f2f'
-  if (score < 40) return '#f57c00'
-  if (score < 60) return '#fbc02d'
-  if (score < 80) return '#7cb342'
-  return '#2e7d32'
-}
 
 
 // Grab the chart for bullish indicator
-const ctx_chart = document.getElementById('bullishIndicator')
+const ctx_chart = document.getElementById("bullishIndicator")
 
-new Chart(ctx_chart, {
-  type: 'doughnut',
-  plugins: [centerText],
-  data: {
-    datasets: [
-      {
-        data: [0.001, 99.999],
-        backgroundColor: [pieGraphColor(score), '#eeeeee'],
-        borderWidth: 0
-      }
-    ]
-  }
-})
+const chart = new Chart(ctx_chart, {
+    type: "doughnut",
+    plugins: [centerText],
+    data: {                                  
+        datasets: [{
+            data: [0.001, 99.999],
+            backgroundColor: [pieGraphColor(score), "#eeeeee"],
+            borderWidth: 0
+        }]
+    },
+});
 
-let animation_score = { v: 0 }
+
+let animation_score = {v: 0}
 
 gsap.to(animation_score, {
-  v: score,
-  duration: 1.5,
-  ease: 'power3.out',
-  onUpdate () {
-    const v = Math.max(animation_score.v, 0.0001)
+    v: score,
+    duration: 1.5,
+    ease: 'power3.out',
+    onUpdate(){
+        const v = Math.max(animation_score.v, 0.0001);
 
-    chart.data.datasets[0].data = [v, 100 - v]
-    chart.data.datasets[0].backgroundColor = [pieGraphColor(v), '#222831']
+        chart.data.datasets[0].data = [v, 100 - v];
+        chart.data.datasets[0].backgroundColor = [pieGraphColor(v), '#222831'];
 
-    chart.update('none')
-  }
+        chart.update('none');
+    }
 })
+
 

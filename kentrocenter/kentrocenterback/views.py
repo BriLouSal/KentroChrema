@@ -436,6 +436,8 @@ def stock(request, stock_ticker:str):
     
     current_price = stock_ticker_data['stock_price']
     
+    bearish_indicator = bullish_indicator(stock_url)
+    
     
     
     context = {
@@ -446,6 +448,7 @@ def stock(request, stock_ticker:str):
         'insider_transaction_data_sentiment': insider_transaction_data_sentiment,
         'insider_recent_trader': insider_recent_trader(stock_url),
         "bullish_indicator": bullish_indicator(stock_url),
+        "bearish_indicator":  100 - bearish_indicator, 
         'current_price': round(current_price,2),
         
     }
