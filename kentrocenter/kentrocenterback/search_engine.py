@@ -26,7 +26,7 @@ from django.core.cache import cache
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import GetAssetsRequest
 from alpaca.trading.enums import AssetClass, AssetStatus
-
+from alpaca_trade_api import list_assets
 import os 
 from dotenv import load_dotenv
 
@@ -71,6 +71,7 @@ def stock_engine_grab_data(data: str):
 
     FORBIDDEN_EXCHANGE = ['ARCA', 'OTC', 'BATS']
 
+
     stock_rec = [
         a for a in assets
         if a.symbol.upper().startswith(data)
@@ -98,6 +99,11 @@ def stock_engine_grab_data(data: str):
 
     cache.set(cache_key, result, 300)
     return result
+
+
+
+    # return result
+
 
 
 async def information_letter(request, letters):

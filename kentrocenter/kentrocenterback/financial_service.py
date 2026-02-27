@@ -175,6 +175,12 @@ def insider_recent_trader(stock_ticker: str):
         key= lambda x: (x["sharePrice"] * x["share"]),
         reverse=True
     )
+    
+    # Use set as we don't want duplicate 
+    unique_insiders = []
+    
+    set_of_sorted = set()
+    
         
         
     return sorted_score[:5]

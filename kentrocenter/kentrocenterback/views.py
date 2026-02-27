@@ -54,11 +54,13 @@ from .financial_service import (
     stock_data,
     dailyWinners,
     dailyLosers,
-    insider_recent_trader,
-    insider_transaction_trading_sentiment,
+
     get_company_name
 )
-
+from .insider_transaction import(
+    insider_recent_trader,
+    insider_transaction_trading_sentiment,
+)
 from .sync_centralized import sync_to_snaptrade
 
 from . financial_models import(
