@@ -65,6 +65,10 @@ from . financial_models import(
     bullish_indicator,
 )
 
+from .search_engine import(
+    ticker_exists_database
+)
+
 
 
 
@@ -490,8 +494,31 @@ def redirect_url_snaptrade(request):
 
 
 def search_views(request):
-    return render(request, 'base/search_engine_views.html')
+    try:
+        search = request.GET.get("search")
+
+        if search:
+            search_stock = search.upper()
+
+            exists = ticker_exists_database(search_stock)
+
+            if exists is None:
+                messages.error(request, "API Error")
+            elif exists is False:
+                messages.error(request, "Stock Does not Exist")
+            else:
+                return redirect('stock', stock_ticker=search_stock)
+
+        # Always render page if no valid redirect
+        return render(request, 'base/search_engine_views.html')
+
+    except Exception:
+        messages.error(request, "Server Issue: Error Code 404")
+        return redirect("home")
     
+
+
+
 
 
 

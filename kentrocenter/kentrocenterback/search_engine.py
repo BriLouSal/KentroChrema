@@ -114,4 +114,14 @@ async def information_letter(request, letters):
     return JsonResponse({'results': results})
 
 
-    
+def ticker_exists_database(stock_tick: str) -> bool:
+    try:
+        asset = alpaca_client.get_asset(stock_tick)
+        if asset.tradable and asset.status == "active":
+            return True
+        else:
+            return False
+    # APi Error
+    except Exception as e:
+        print(f"Exception Raised: Error {e}")
+        return None
