@@ -1,3 +1,6 @@
+console.log("Search JS loaded");
+
+
 const input = document.getElementById('stockSearch');
 const autocomplete = document.querySelector('.autocomplete');
 
@@ -52,3 +55,4 @@ input.addEventListener('input', async () => {
         autocomplete.innerHTML = '';
     }
 });
+

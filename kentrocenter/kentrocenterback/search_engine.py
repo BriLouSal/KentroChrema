@@ -101,16 +101,7 @@ def stock_engine_grab_data(data: str):
 
 
 async def information_letter(request, letters):
-    quotes = await stock_engine_grab_data(letters)
-    results = []
-    for q in quotes:
-        results.append({
-        'symbol': q.symbol ,
-        'name': q.name or '',
-        'exchange': q.exchange,
-    })
-
-
+    results = await stock_engine_grab_data(letters)
     return JsonResponse({'results': results})
 
 
@@ -125,3 +116,6 @@ def ticker_exists_database(stock_tick: str) -> bool:
     except Exception as e:
         print(f"Exception Raised: Error {e}")
         return None
+    
+    
+    

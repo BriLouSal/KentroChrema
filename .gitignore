@@ -10,3 +10,4 @@ kentrocenter/kentrocenterback/financial_models.py
 __pycache__/
 kentrocenter/kentrocenterback/sync_centralized.py
 .env
+kentrocenter/kentrocenterback/portfolio_management.py
