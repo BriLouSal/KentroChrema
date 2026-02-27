@@ -44,55 +44,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
 
-def sync_to_snaptrade(user):
-    # This is for the sync to snaptrade, which will be used to sync the user's brokerage account to snaptrade, and we'll use the snaptrade API to do this, and we'll also use the snaptrade API to grab the user's portfolio and holdings, and we'll store that in our database so that we can use it for our portfolio page and also for our financial models.
-    profile = user.profile
-    if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:
-        return
-    snaptrade_user_id = profile.snaptrade_user_id
-    snaptrade_user_secret = profile.snaptrade_user_secret
-    accounts = SnapTradeAPI_ACTIVATE.account_information.list_user_accounts(
-        user_id=profile.snaptrade_user_id, 
-        user_secret= profile.snaptrade_user_secret)
-    
-    total_value = 0
-    for account in accounts:
-        brokage_link_sync, _ = BrokerageAccount.objects.update_or_create(
-            account_id=account.account_id,
-            defaults={
-                "snaptrade_user_id": snaptrade_user_id,
-                "snaptrade_user_secret": snaptrade_user_secret,
-            }
-        )
-        # Clear old holdings for this account before syncing new ones
-        Holding.objects.filter(user=brokage_link_sync).delete()
+
         
-        holdings = SnapTradeAPI_ACTIVATE.holdings.list_holdings(
-            user_id=snaptrade_user_id, 
-            user_secret= snaptrade_user_secret, 
-            account_id=account.account_id
-        )
-        positions = holdings.get("data", {}).get("positions", [])
-        for position in positions:
-            book_cost = position.get("book_cost", 0)
-            shares_hold = position.get("shares", 0)
-            market_value = position.get("market_value", 0)
-            total_value += market_value
-            Holding.objects.create(
-                user=brokage_link_sync,
-                book_cost=book_cost,
-                shares_hold=shares_hold,
-                market_value=market_value
-            )
-            
-        PortfolioTime.objects.create(
-            user=user,
-            total_value=total_value
-        )
-        
-        
-def portfolio():
-    pass
+
         
         
     

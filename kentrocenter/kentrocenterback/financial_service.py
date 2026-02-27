@@ -150,67 +150,6 @@ def dailyLosers():
         return result
     except Exception as e:
         return []  # Return an empty list in case of any error, such as that we can raise API limit error or something like that, so we can just return an empty list and it won't break the website, and we can also add a message to the user that there's a issue with the API and that they should try again later.
-def insider_recent_trader(stock_ticker: str):
-    stock_ticker = stock_ticker.upper()
-    
-    today = date.today().isoformat()
-
-    insider_informtion = []
-
-    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
-    
-    
-    insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
-    for insider in insider_trading_info.get("data", []):
-        insider_informtion.append({
-            "name": insider.get("name"),
-            "transactionDate": insider.get("transactionDate"),
-            "share": insider.get("share"),
-            "sharesTraded": insider.get("sharesTraded"),
-            "sharePrice": insider.get("transactionPrice"),
-        })
-        
-    sorted_score = sorted(
-        insider_informtion,
-        key= lambda x: (x["sharePrice"] * x["share"]),
-        reverse=True
-    )
-    
-    # Use set as we don't want duplicate 
-    unique_insiders = []
-    
-    set_of_sorted = set()
-    
-        
-        
-    return sorted_score[:5]
-
-
-def insider_transaction_trading_sentiment(stock_ticker: str,):
-    stock_ticker = stock_ticker.upper()
-    
-    today = date.today().isoformat()
-
-    insider_informtion = []
-
-    one_month_ago = (date.today() - relativedelta(months=12)).isoformat()
-    
-    
-    sentiment_data = finnhub_client.stock_insider_sentiment(symbol=stock_ticker, to=today, _from=one_month_ago)
-    
-    
-
-    
-    # Grab the data for
-    for data in sentiment_data.get("data", []):
-        insider_informtion.append({
-            "mspr": data.get("mspr"),
-        })
-        
-
-    
-    return sentiment_data
-
 
 
 

@@ -61,7 +61,7 @@ from .insider_transaction import(
     insider_recent_trader,
     insider_transaction_trading_sentiment,
 )
-from .sync_centralized import sync_to_snaptrade
+from .stock_portfolio_management import sync_to_snaptrade
 
 from . financial_models import(
     bullish_indicator,
