@@ -22,4 +22,4 @@ KentroCherma is a Python-powered centralized investment platform that allows use
 ![verification](verificationsystem.png)
 ![stockinfo](stockviews.png)
 ![search](SEARCH.png)
-
+![video](KentroChermaDemo.mp4)

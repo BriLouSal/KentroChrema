@@ -26,9 +26,11 @@ from django.db.models import Sum
 import json
 import numpy as np
 
+from collections import defaultdict
+
 from datetime import timedelta
 from django.utils import timezone
-
+import ast
 
 import finnhub
 from finnhub import Client
@@ -66,6 +68,19 @@ CLIENT_ID = os.getenv('CLIENT_ID')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
+
+
+# Convert the currency, because we want to like consider if people hold stocks from Canada, etc.
+
+def get_cad_to_usd_rate():
+    try:
+        quote = finnhub_client.quote("OANDA:CAD_USD")
+        rate = quote.get("c")
+        return Decimal(str(rate)) if rate else Decimal("0.75")
+    except:
+        return Decimal("0.75")  # fallback safety
+    
+    
 
 # INFO:  The formula is: Sharpe Ratio =   = 
 
@@ -127,6 +142,9 @@ def user_portfolio(request):
     interval = request.GET.get("range", "ALL")
 
     accounts = request.user.brokerage_accounts.all()
+    
+    
+    cad_to_usd = get_cad_to_usd_rate()
 
     if not accounts.exists():
         return redirect("home")
@@ -151,21 +169,44 @@ def user_portfolio(request):
     total_value = Decimal("0")
     total_gain_loss = Decimal("0")
     # iterate through holdings, etc.
+    category_totals = defaultdict(Decimal)
 
     for h in holdings:
+        # Check if the ticker is able to be parsed
+        try:
+            ticker_data = ast.literal_eval(h["ticker"])
+        except:
+            ticker_data = {}
+        # check if the currency is CAD or USD, etc.
 
-        total_value += h["total_market_value"]
-        gain = h["total_market_value"] - h["total_book_cost"]
+        currency_code = ticker_data.get("currency", {}).get("code", "USD")
+        asset_type = ticker_data.get("type", {}).get("code", "unknown")
+
+
+        market_value = h["total_market_value"] or Decimal("0")
+        book_cost = h["total_book_cost"] or Decimal("0")
+
+        # Convert the CAD to USD 
+        if currency_code == "CAD":
+            market_value = market_value * cad_to_usd
+            book_cost = book_cost * cad_to_usd
+        category_totals[asset_type] += market_value
+
+
+        h["total_market_value"] = market_value
+
+        total_value += market_value
+
+        gain = market_value - book_cost
         h["gain_loss"] = gain
         total_gain_loss += gain
-        
-        # Grab the book cost, such as that how much has the person make as book cost is how much
-        # average worth is their stock (including DCA)
 
-        if h["total_book_cost"] > 0:
-            h["gain_percent"] = (gain / h["total_book_cost"]) * 100
+        if book_cost > 0:
+            h["gain_percent"] = (gain / book_cost) * 100
         else:
             h["gain_percent"] = Decimal("0")
+    category_labels = list(category_totals.keys())
+    category_values = [float(v) for v in category_totals.values()]
         
     snapshots = PortfolioTime.objects.filter(
     user=request.user
@@ -184,6 +225,9 @@ def user_portfolio(request):
         "portfolio_labels": json.dumps(chart_labels),
         "portfolio_values": json.dumps(chart_values),
         "sharpe_ratio": portfolio_sharpe,
+        "category_labels": json.dumps(category_labels),
+        "category_values": json.dumps(category_values),
+
     }
 
     return render(request, "base/portfolio.html", context)

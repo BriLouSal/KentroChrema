@@ -53,3 +53,37 @@ document.querySelectorAll('[data-range]').forEach(button => {
     portfolioChart.update();
   });
 });
+const allocationCtx = document.getElementById('allocationChart');
+
+if (allocationCtx && categoryValues.length > 0) {
+  new Chart(allocationCtx, {
+    type: 'doughnut',
+    data: {
+      labels: categoryLabels,
+      datasets: [{
+        data: categoryValues,
+        backgroundColor: [
+          '#3b82f6',
+          '#10B981',
+          '#F59E0B',
+          '#EF4444',
+          '#8B5CF6',
+          '#14B8A6',
+          '#F472B6'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          labels: {
+            color: '#ffffff'
+          }
+        }
+      }
+    }
+  });
+}

@@ -51,7 +51,9 @@ from dotenv import load_dotenv
 import os
 from .KOSAI import(
     snaptrade_account_register,
-    snaptrade_portfolio
+    snaptrade_portfolio,
+    build_stock_intelligence,
+    summarize_stock_intelligence
 )
 
 
@@ -454,6 +456,9 @@ def stock(request, stock_ticker:str):
     percentage = stock_ticker_data['percentage']
     company_name = get_company_name(stock_ticker)
     
+    data = build_stock_intelligence(stock_ticker)
+    summary = summarize_stock_intelligence(stock_ticker, data)
+    
  
     
     context = {
@@ -469,6 +474,7 @@ def stock(request, stock_ticker:str):
         'percent_change': round(percentage,2),
         "name": company_name,
         "risk": risk_models(stock_url),
+        "summary": summary
  
         
     }
