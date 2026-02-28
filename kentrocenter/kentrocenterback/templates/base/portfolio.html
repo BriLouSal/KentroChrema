@@ -63,8 +63,53 @@
         </div>
 
         <div class="bg-[#111C33] p-5 rounded-xl border border-gray-800">
+          <p class="text-sm text-gray-400">Sharpe Ratio</p>
+          <h3 class="text-xl font-semibold mt-2">{{ sharpe_ratio }}</h3>
+        </div>
+
+        <div class="bg-[#111C33] p-5 rounded-xl border border-gray-800">
           <p class="text-sm text-gray-400">Net Worth</p>
           <h3 class="text-xl font-semibold mt-2">${{ total_value }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
+        <h3 class="text-lg font-semibold mb-4">Price Chart</h3>
+        <div style="position: relative; height: 16rem">
+          <canvas id="portfolioChart"></canvas>
+        </div>
+
+        <div class="flex gap-4 mb-6 text-sm">
+          <button
+            data-range="1D"
+            class="range-btn px-3 py-1 rounded-lg transition"
+          >
+            1D
+          </button>
+          <button
+            data-range="1W"
+            class="range-btn px-3 py-1 rounded-lg transition"
+          >
+            1W
+          </button>
+          <button
+            data-range="1M"
+            class="range-btn px-3 py-1 rounded-lg transition"
+          >
+            1M
+          </button>
+          <button
+            data-range="1Y"
+            class="range-btn px-3 py-1 rounded-lg transition"
+          >
+            1Y
+          </button>
+          <button
+            data-range="ALL"
+            class="range-btn px-3 py-1 rounded-lg transition"
+          >
+            ALL
+          </button>
         </div>
       </div>
 
@@ -93,10 +138,7 @@
               <td class="px-6 py-4">{{ h.total_shares }}</td>
               <td class="px-6 py-4">${{ h.total_market_value }}</td>
               <td
-                class="px-6 py-4 {% if h.gain_loss >= 0 %}
-                text-green-400
-                {% else %
-                }text-red-400{% endif %}"
+                class="px-6 py-4 {% if h.gain_loss >= 0 %} text-green-400 {% else %}text-red-400{% endif %}"
               >
                 ${{ h.gain_loss }}
               </td>
@@ -117,5 +159,14 @@
         </table>
       </div>
     </div>
+
+    <script>
+      const portfolioLabels = {{ portfolio_labels|safe }};
+      const portfolioValues = {{ portfolio_values|safe }};
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+    <script src="{% static 'portfolio.js' %}" defer></script>
   </body>
 </html>

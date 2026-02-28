@@ -21,8 +21,13 @@ from django.conf import settings
 from django.db.models.signals import post_save
 # We don't wanna use float, as it's inaccurate.
 from decimal import Decimal
-
+from django.http import JsonResponse
 from django.db.models import Sum
+import json
+import numpy as np
+
+from datetime import timedelta
+from django.utils import timezone
 
 
 import finnhub
@@ -52,6 +57,8 @@ finnhub_client = Client(api_key=FINNHUB_API)
 TWELVEDATA_API_KEY = os.getenv('TWELVEDATAAPI')
 
 
+
+
 # Plans: First we need to have our signup/authentication systems ready at any cost,
 
 
@@ -60,14 +67,64 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
+# INFO:  The formula is: Sharpe Ratio =   = 
+
+# , where 
+#  is the portfolio return
+#  is the risk-free rate, and 
+#  is the standard deviation of portfolio returns. 
+
+def sharpe_ratio(user, risk_free_rate=None):
+
+    snapshots = PortfolioTime.objects.filter(
+        user=user
+    ).order_by("created_at")
+
+    values = [float(s.total_value) for s in snapshots]
 
 
+    values = [v for v in values if v > 0]
+
+    if len(values) < 2:
+        return 0.0
+
+    returns = np.diff(values) / values[:-1]
+    returns = returns[np.isfinite(returns)]
+
+    if len(returns) == 0:
+        return 0.0
+
+    avg_return = np.mean(returns)
+    volatility = np.std(returns)
+
+    if volatility == 0 or np.isnan(volatility):
+        return 0.0
+
+    if risk_free_rate is None:
+        try:
+            quote = finnhub_client.quote("^TNX")
+            tnx_value = quote.get("c")
+            risk_free_rate = float(tnx_value) / 100 if tnx_value else 0.04
+        except:
+            risk_free_rate = 0.04
+
+    daily_rf = risk_free_rate / 252
+
+    sharpe = (avg_return - daily_rf) / volatility
+
+    if np.isnan(sharpe) or np.isinf(sharpe):
+        return 0.0
+
+    sharpe_annualized = sharpe * np.sqrt(252)
+
+    return round(float(sharpe_annualized), 3)
         
 @login_required
 def user_portfolio(request):
     # Update the user
     sync_to_snaptrade(request.user)
     # Accesst he user
+    interval = request.GET.get("range", "ALL")
 
     accounts = request.user.brokerage_accounts.all()
 
@@ -96,9 +153,7 @@ def user_portfolio(request):
     # iterate through holdings, etc.
 
     for h in holdings:
-        print("Ticker:", h["ticker"])
-        print("Market:", h["total_market_value"])
-        print("Book:", h["total_book_cost"])
+
         total_value += h["total_market_value"]
         gain = h["total_market_value"] - h["total_book_cost"]
         h["gain_loss"] = gain
@@ -111,15 +166,25 @@ def user_portfolio(request):
             h["gain_percent"] = (gain / h["total_book_cost"]) * 100
         else:
             h["gain_percent"] = Decimal("0")
-    # Context for JS, so we can create a graph
+        
+    snapshots = PortfolioTime.objects.filter(
+    user=request.user
+    ).order_by("created_at")
+
+    chart_labels = [s.created_at.strftime("%b %d %H:%M") for s in snapshots]
+    chart_values = [float(s.total_value) for s in snapshots]
+    
+    portfolio_sharpe = sharpe_ratio(request.user)
+
 
     context = {
         "holdings": holdings,
-        "total_value": total_value,
-        "total_gain_loss": total_gain_loss,
+        "total_value": round(total_value, 2),
+        "total_gain_loss": round(total_gain_loss,2),
+        "portfolio_labels": json.dumps(chart_labels),
+        "portfolio_values": json.dumps(chart_values),
+        "sharpe_ratio": portfolio_sharpe,
     }
-    
-    print(context)
 
     return render(request, "base/portfolio.html", context)
 
@@ -131,5 +196,40 @@ def user_portfolio(request):
     # Register the snaptrade information portfolio and holdings to our database, and we'll also update the snaptrade information in our database so that we can use it for our portfolio page and also for our financial models.
 
 
-def sharpe_ratio(portfolio: dict) -> float:
-    pass
+
+
+# We wanna have like a graph changing data without refreashing, and I believe
+# that we can do this via javascript's fetch url, and e.preventdefault();, etc.
+
+def portfolio_chart_data(request):
+    interval = request.GET.get("range", "ALL")
+
+    snapshots = PortfolioTime.objects.filter(
+        user=request.user
+    ).order_by("created_at")
+
+    now = timezone.now()
+
+    if interval == "1D":
+        cutoff = now - timedelta(days=1)
+    elif interval == "1W":
+        cutoff = now - timedelta(weeks=1)
+    elif interval == "1M":
+        cutoff = now - timedelta(days=30)
+    elif interval == "1Y":
+        cutoff = now - timedelta(days=365)
+    else:
+        cutoff = None
+
+    if cutoff:
+        filtered = snapshots.filter(created_at__gte=cutoff)
+        if filtered.exists():
+            snapshots = filtered
+
+    labels = [s.created_at.strftime("%b %d %H:%M") for s in snapshots]
+    values = [float(s.total_value) for s in snapshots]
+
+    return JsonResponse({
+        "labels": labels,
+        "values": values
+    })

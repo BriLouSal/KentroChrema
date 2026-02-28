@@ -70,6 +70,7 @@ from .KOSAI import sync_to_snaptrade
 
 from . financial_models import(
     bullish_indicator,
+    risk_models,
 )
 
 from .search_engine import(
@@ -447,12 +448,13 @@ def stock(request, stock_ticker:str):
     
     current_price = stock_ticker_data['stock_price']
     
-    bearish_indicator = bullish_indicator(stock_url)
+    bearish_indicator = bullish_indicator(stock_url) - 100
     
     
     percentage = stock_ticker_data['percentage']
     company_name = get_company_name(stock_ticker)
     
+ 
     
     context = {
         "stock_ticker": stock_url,
@@ -462,10 +464,12 @@ def stock(request, stock_ticker:str):
         'insider_transaction_data_sentiment': insider_transaction_data_sentiment,
         'insider_recent_trader': insider_recent_trader(stock_url),
         "bullish_indicator": bullish_indicator(stock_url),
-        "bearish_indicator":  100 - bearish_indicator, 
+        "bearish_indicator":  bearish_indicator, 
         'current_price': round(current_price,2),
         'percent_change': round(percentage,2),
-        "name": company_name
+        "name": company_name,
+        "risk": risk_models(stock_url),
+ 
         
     }
     return render(request, 'base/stock_view.html', context)

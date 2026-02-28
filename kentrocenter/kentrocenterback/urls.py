@@ -20,6 +20,7 @@ urlpatterns  = [
     path('verification/', views.verification_page, name='verify'),
     
     path('portfolio/', stock_portfolio_management.user_portfolio, name='portfolio'),
+    path("portfolio/chart-data/", stock_portfolio_management.portfolio_chart_data, name="portfolio_chart_data"),
     
     path('stock/<str:stock_ticker>/', views.stock, name='stock'),
     
@@ -32,8 +33,6 @@ urlpatterns  = [
    
     # API and Login methods
     path("api/autocomplete/<str:letters>/", search_engine.information_letter, name="information_letter"),
-    
-    path('api/order/', stock_orders.stock_order , name='stock_order'),
     
     path('accounts/', include('allauth.urls')),
     
