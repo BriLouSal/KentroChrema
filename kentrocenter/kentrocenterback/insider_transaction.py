@@ -76,10 +76,16 @@ def insider_recent_trader(stock_ticker: str):
     
     set_of_sorted = set()
     
-        
-        
-    return sorted_score[:5]
+    # Ensure no duplicates of insider name does not exist, we don't want
 
+    for set_numbers in sorted_score:
+        if set_numbers['name'] not in set_of_sorted:
+            unique_insiders.append(set_numbers)
+            set_of_sorted.add(set_numbers["name"])
+        if len(set_of_sorted) == 5:
+            break
+        
+    return unique_insiders
 
 def insider_transaction_trading_sentiment(stock_ticker: str,):
     stock_ticker = stock_ticker.upper()

@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail, EmailMessage
+
+from django.contrib.auth.decorators import login_required
+
 from django.contrib import messages
 from .models import EmailVerificationCode, Profile, BrokerageAccount, Holding, PortfolioTime
 from django.core.mail import send_mail
@@ -13,6 +16,8 @@ from django.conf import settings
 from django.db.models.signals import post_save
 # We don't wanna use float, as it's inaccurate.
 from decimal import Decimal
+
+
 
 import secrets
 
@@ -61,7 +66,7 @@ from .insider_transaction import(
     insider_recent_trader,
     insider_transaction_trading_sentiment,
 )
-from .stock_portfolio_management import sync_to_snaptrade
+from .KOSAI import sync_to_snaptrade
 
 from . financial_models import(
     bullish_indicator,
@@ -277,7 +282,7 @@ def signup_page(request):
 # This will be our API call towards Google for users to login via this method
 
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
-
+@login_required
 def snaptrade_account_register(user):
     # If the user exist just return, so we don't get duplicate
     profile, created = Profile.objects.get_or_create(user=user)
@@ -485,9 +490,9 @@ def stock(request, stock_ticker:str):
 def redirect_url_snaptrade(request):
     status = request.GET.get("status")
     if status == "SUCCESS":
-        
+        sync_to_snaptrade(request.user)
         return redirect("home")
-        
+     
     messages.warning(request, f"Connection status: {status or 'Cancelled'}")
     return redirect("home")
 
@@ -594,7 +599,7 @@ def user_portfolio(request):
     if not accounts.exists():  
         return redirect('home')
     
-    
+
     
     return render(request, 'base/portfolio.html')
 
