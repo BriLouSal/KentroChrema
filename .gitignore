@@ -11,3 +11,6 @@ __pycache__/
 kentrocenter/kentrocenterback/sync_centralized.py
 .env
 kentrocenter/kentrocenterback/portfolio_management.py
+migrations/
+
+.gitignore

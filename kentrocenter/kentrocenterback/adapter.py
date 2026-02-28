@@ -2,6 +2,7 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.shortcuts import resolve_url
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
+from .KOSAI import snaptrade_account_register
 
 
 
@@ -20,6 +21,11 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
         except User.DoesNotExist:
             pass
     def get_login_redirect_url(self, request):
+        user = request.user
+
+        if not user.profile.snaptrade_user_id:
+            snaptrade_account_register(user)
+
         return resolve_url('home')
     def authentication_error(
     self,

@@ -21,6 +21,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 # We don't wanna use float, as it's inaccurate.
 from decimal import Decimal
+from django.http import JsonResponse
 
 from django.db.models import Sum
 
@@ -64,54 +65,71 @@ SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 
         
 @login_required
-def user_portfolio(request):
-    sync_to_snaptrade(request.user)
+def stock_order(request, ticker: str):
 
-    accounts = request.user.brokerage_accounts.all()
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
 
-    if not accounts.exists():
-        return redirect("home")
+    profile = request.user.profile
 
-    holdings = (
-        Holding.objects
-        .filter(brokerage_account__in=accounts)
-        .values("ticker")
-        .annotate(
-            total_shares=Sum("shares_hold"),
-            total_market_value=Sum("market_value"),
-            total_book_cost=Sum("book_cost"),
-        )
-        .order_by("-total_market_value")
-    )
+    if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:
+        return JsonResponse({"error": "SnapTrade not linked"}, status=400)
 
-    # Decimal is much more accurate than Float (THanks a lot CPSC 217 lollll)
-    total_value = Decimal("0")
-    total_gain_loss = Decimal("0")
-    # iterate through holdings, etc.
+    account = BrokerageAccount.objects.filter(user=request.user).first()
 
-    for h in holdings:
-        total_value += h["total_market_value"]
-        gain = h["total_market_value"] - h["total_book_cost"]
-        h["gain_loss"] = gain
-        total_gain_loss += gain
-        
-        # Grab the book cost, such as that how much has the person make as book cost is how much
-        # average worth is their stock (including DCA)
+    if not account:
+        return JsonResponse({"error": "No brokerage account found"}, status=400)
 
-        if h["total_book_cost"] > 0:
-            h["gain_percent"] = (gain / h["total_book_cost"]) * 100
-        else:
-            h["gain_percent"] = Decimal("0")
-    # Context for JS, so we can create a graph
+    action = request.POST.get("action")
+    order_type = request.POST.get("order_type")
+    quantity = request.POST.get("quantity")
+    limit_price = request.POST.get("limit_price")
 
-    context = {
-        "holdings": holdings,
-        "total_value": total_value,
-        "total_gain_loss": total_gain_loss,
+    if action not in ["BUY", "SELL"]:
+        return JsonResponse({"error": "Invalid action"}, status=400)
+
+    if order_type not in ["Market", "Limit"]:
+        return JsonResponse({"error": "Invalid order type"}, status=400)
+
+    try:
+        quantity = float(quantity)
+        if quantity <= 0:
+            raise ValueError
+    except:
+        return JsonResponse({"error": "Invalid quantity"}, status=400)
+
+    payload = {
+        "user_id": profile.snaptrade_user_id,
+        "user_secret": profile.snaptrade_user_secret,
+        "account_id": account.account_id,
+        "action": action,
+        "symbol": ticker.upper(),
+        "order_type": order_type,
+        "time_in_force": "Day",
+        "trading_session": "REGULAR",
+        "units": quantity,
     }
 
-    return render(request, "base/portfolio.html", context)
+    if order_type == "Limit":
+        try:
+            payload["price"] = float(limit_price)
+        except:
+            return JsonResponse({"error": "Invalid limit price"}, status=400)
 
+    try:
+        response = SnapTradeAPI_ACTIVATE.trading.place_order(**payload)
+
+        # Immediately resync portfolio
+        sync_to_snaptrade(request.user)
+
+        return JsonResponse({
+            "success": True,
+            "message": "Order placed successfully",
+            "order": response.body
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
         
 
     
@@ -119,5 +137,5 @@ def user_portfolio(request):
     # Register the snaptrade information portfolio and holdings to our database, and we'll also update the snaptrade information in our database so that we can use it for our portfolio page and also for our financial models.
 
 
-def sharpe_ratio(portfolio: dict) -> float:
-    pass
+
+

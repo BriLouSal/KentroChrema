@@ -282,7 +282,6 @@ def signup_page(request):
 # This will be our API call towards Google for users to login via this method
 
 # TODO: Add login with google URl method, and it will bypass the verifcation code since we know that user email exists and that all we need to do is just have the user make a username and then -> 
-@login_required
 def snaptrade_account_register(user):
     # If the user exist just return, so we don't get duplicate
     profile, created = Profile.objects.get_or_create(user=user)
@@ -392,7 +391,7 @@ def verification_page(request):
             messages.error(request, "Verification Code does not Exist, Please Signup")
             return redirect('signup')
     return render(request, 'base/verification.html')
-    
+@login_required
 def home(request):
     # We want this to be our portfolio view, but first we might wanna do is connect our API/investment platform!
     
@@ -589,7 +588,7 @@ def account_link_porfolio(request):
     
 def user_portfolio(request):
     # Now for this one we gotta grab our snaptrade user id and also grab portfolio models and holdings models and then we can display it on the portfolio page, and we can also have a error handling that will ensure if there's a case where the User hasn't registered or haven't synced their account, so we can just display a message that they should link their account to see their portfolio, and then we can have a button that will redirect them to the snaptrade_link_views_wealthsimple view that will allow them to link their account, and then after they link their account we can redirect them back to the portfolio page and then we can display their portfolio information, such as their total value and also their holdings and also the performance of their portfolio, such as how much they gained or lost in the last day or in the last week or in the last month, etc.
-    
+    sync_to_snaptrade(request.user)
     profile = request.user.profile
     # We wanna warn user right, so we add swalfire for this one
     if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:

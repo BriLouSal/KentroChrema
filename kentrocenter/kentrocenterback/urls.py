@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.urls import path, include
 from django.conf import settings
-from . import views, search_engine
+from . import views, search_engine, stock_orders
 
 
 urlpatterns  = [
@@ -10,12 +10,6 @@ urlpatterns  = [
         "accounts/3rdparty/login/cancelled/",
         lambda request: redirect("signup"),
     ),
-    path(
-        "http://127.0.0.1:8000/accounts/google/login/callback/?state=FqveawNTbM13GwXi&iss=https%3A%2F%2Faccounts.google.com&code=4%2F0AfrIepCoYUuDXkhrpK9PjHF64QlAzTo9vD7ZhQUQHrvt3suoABj4GpmPX3k5KiWwMIvLFQ&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+openid&authuser=1&prompt=none",
-        lambda request: redirect('signup')
-    ),
-    
-    
     path('', views.signup_page, name='signup'),
     path('home/', views.home, name='home'),
     path('login/' , views.loginpage, name='login'),
@@ -28,6 +22,8 @@ urlpatterns  = [
     path('snaptrade_callback/', views.redirect_url_snaptrade, name='snaptrade_callback'),
     # API and Login methods
     path("api/autocomplete/<str:letters>/", search_engine.information_letter, name="information_letter"),
+    path('api/order/', stock_orders.stock_order , name='stock_order'),
+    path("api/limit_order/", stock_orders.limit_order, name="limit-order"),
     path('accounts/', include('allauth.urls')),
     
     
