@@ -14,3 +14,4 @@ kentrocenter/kentrocenterback/portfolio_management.py
 migrations/
 
 .gitignore
+*.mp4
