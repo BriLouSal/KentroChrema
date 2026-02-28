@@ -586,21 +586,7 @@ def account_link_porfolio(request):
 
 
     
-def user_portfolio(request):
-    # Now for this one we gotta grab our snaptrade user id and also grab portfolio models and holdings models and then we can display it on the portfolio page, and we can also have a error handling that will ensure if there's a case where the User hasn't registered or haven't synced their account, so we can just display a message that they should link their account to see their portfolio, and then we can have a button that will redirect them to the snaptrade_link_views_wealthsimple view that will allow them to link their account, and then after they link their account we can redirect them back to the portfolio page and then we can display their portfolio information, such as their total value and also their holdings and also the performance of their portfolio, such as how much they gained or lost in the last day or in the last week or in the last month, etc.
-    sync_to_snaptrade(request.user)
-    profile = request.user.profile
-    # We wanna warn user right, so we add swalfire for this one
-    if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:
-        messages.warning(request, "Please link your SnapTrade account to view your portfolio.")
-        return redirect('home')
-    accounts = BrokerageAccount.objects.filter(snaptrade_user_id=profile.snaptrade_user_id)
-    if not accounts.exists():  
-        return redirect('home')
-    
 
-    
-    return render(request, 'base/portfolio.html')
 
 def loginpage(request):
     if request.method == "POST":

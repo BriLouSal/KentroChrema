@@ -1,12 +1,12 @@
 {% load static tailwind_tags %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     {% tailwind_css %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio</title>
-</head>
+  </head>
   <body class="bg-[#0B1426] text-gray-200 min-h-screen">
     <!-- Top Navbar -->
     <div
@@ -23,10 +23,99 @@
         <a href="{% url 'home' %}" class="hover:text-blue-400 transition"
           >Home</a
         >
-        <a href="{% url 'search_views' %}" class="hover:text-amber-300 transition"> Search </a>
+        <a
+          href="{% url 'search_views' %}"
+          class="hover:text-amber-300 transition"
+        >
+          Search
+        </a>
       </div>
     </div>
+    <div class="px-8 py-8 space-y-8">
+      <!-- Portfolio Summary Card -->
+      <div
+        class="rounded-2xl p-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-xl"
+      >
+        <p class="text-sm opacity-80">Total Portfolio Value</p>
+        <h2 class="text-3xl font-bold mt-2">${{ total_value }}</h2>
+        <p class="mt-2 text-sm">
+          Total Gain/Loss:
+          <span
+            class="{% if total_gain_loss >= 0 %}text-green-300{% else %}text-red-300{% endif %}"
+          >
+            ${{ total_gain_loss }}
+          </span>
+        </p>
+      </div>
 
-    
-</body>
+      <!-- Stats Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-[#111C33] p-5 rounded-xl border border-gray-800">
+          <p class="text-sm text-gray-400">Positions</p>
+          <h3 class="text-xl font-semibold mt-2">{{ holdings|length }}</h3>
+        </div>
+
+        <div class="bg-[#111C33] p-5 rounded-xl border border-gray-800">
+          <p class="text-sm text-gray-400">Portfolio Gain</p>
+          <h3 class="text-xl font-semibold mt-2 text-green-400">
+            ${{ total_gain_loss }}
+          </h3>
+        </div>
+
+        <div class="bg-[#111C33] p-5 rounded-xl border border-gray-800">
+          <p class="text-sm text-gray-400">Net Worth</p>
+          <h3 class="text-xl font-semibold mt-2">${{ total_value }}</h3>
+        </div>
+      </div>
+
+      <!-- Holdings Table -->
+      <div
+        class="bg-[#111C33] rounded-2xl border border-gray-800 overflow-hidden"
+      >
+        <div class="px-6 py-4 border-b border-gray-800">
+          <h3 class="text-lg font-semibold">Your Holdings</h3>
+        </div>
+
+        <table class="w-full text-sm">
+          <thead class="bg-[#0F1A30] text-gray-400">
+            <tr>
+              <th class="px-6 py-3 text-left">Ticker</th>
+              <th class="px-6 py-3 text-left">Shares</th>
+              <th class="px-6 py-3 text-left">Market Value</th>
+              <th class="px-6 py-3 text-left">Gain/Loss</th>
+              <th class="px-6 py-3 text-left">% Gain</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in holdings %}
+            <tr class="border-t border-gray-800 hover:bg-[#162240] transition">
+              <td class="px-6 py-4 font-medium">{{ h.ticker }}</td>
+              <td class="px-6 py-4">{{ h.total_shares }}</td>
+              <td class="px-6 py-4">${{ h.total_market_value }}</td>
+              <td
+                class="px-6 py-4 {% if h.gain_loss >= 0 %}
+                text-green-400
+                {% else %
+                }text-red-400{% endif %}"
+              >
+                ${{ h.gain_loss }}
+              </td>
+              <td
+                class="px-6 py-4 {% if h.gain_percent >= 0 %}text-green-400{% else %}text-red-400{% endif %}"
+              >
+                {{ h.gain_percent|floatformat:2 }}%
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-6 text-center text-gray-500">
+                You don’t own any assets yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
 </html>

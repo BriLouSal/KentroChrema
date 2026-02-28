@@ -65,7 +65,9 @@ SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
         
 @login_required
 def user_portfolio(request):
+    # Update the user
     sync_to_snaptrade(request.user)
+    # Accesst he user
 
     accounts = request.user.brokerage_accounts.all()
 
@@ -76,6 +78,10 @@ def user_portfolio(request):
         Holding.objects
         .filter(brokerage_account__in=accounts)
         .values("ticker")
+        #Group 1 → AAPL
+
+# Group 2 → TSLA
+# SPLIT THEM ALL IN GROUPS AS WE DON'T WANT THEM TO LIKE MERGE TGOETHER, IT'S THE LAST THING WE WANT!
         .annotate(
             total_shares=Sum("shares_hold"),
             total_market_value=Sum("market_value"),
@@ -90,6 +96,9 @@ def user_portfolio(request):
     # iterate through holdings, etc.
 
     for h in holdings:
+        print("Ticker:", h["ticker"])
+        print("Market:", h["total_market_value"])
+        print("Book:", h["total_book_cost"])
         total_value += h["total_market_value"]
         gain = h["total_market_value"] - h["total_book_cost"]
         h["gain_loss"] = gain
@@ -109,10 +118,13 @@ def user_portfolio(request):
         "total_value": total_value,
         "total_gain_loss": total_gain_loss,
     }
+    
+    print(context)
 
     return render(request, "base/portfolio.html", context)
 
         
+    #OUTPUT: {'holdings': <QuerySet [{'ticker': "{'id': 'c31e2d7a-5f87-4305-9867-56a01ccfd09d', 'symbol': 'BTC', 'description': 'Bitcoin', 'currency': {'code': 'USD', 'name': 'US Dollar', 'id': '57f81c53-bdda-45a7-a51f-032afd1ae41b'}, 'exchange': {'id': 'fb222c8b-3746-4555-b9d4-b238dcc3230a', 'code': 'COIN', 'mic_code': None, 'name': 'Coinbase', 'suffix': None, 'timezone': 'America/New_York', 'start_time': '00:00:00', 'close_time': '23:59:59.999999'}, 'currencies': [], 'type': {'id': '8c76d59d-1214-4412-9526-052412392387', 'code': 'crypto', 'description': 'Cryptocurrency', 'is_supported': True}, 'raw_symbol': 'BTC', 'logo_url': None, 'figi_code': 'KKG000000M81', 'figi_instrument': {'figi_code': 'KKG000000M81', 'figi_share_class': None}}", 'total_shares': Decimal('0.997500000000000'), 'total_market_value': Decimal('0'), 'total_book_cost': Decimal('63443.1122203846'), 'gain_loss': Decimal('-63443.1122203846'), 'gain_percent': Decimal('-100')}]>, 'total_value': Decimal('0'), 'total_gain_loss': Decimal('-63443.1122203846')}
 
     
     # Now we have to use the snaptrade API to grab the user's portfolio and holdings, and we'll store that in our database so that we can use it for our portfolio page and also for our financial models.
