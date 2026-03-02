@@ -1,0 +1,191 @@
+{% load static tailwind_tags %}
+<!doctype html>
+<html lang="en">
+  <head>
+    {% tailwind_css %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Menu</title>
+    <link rel="stylesheet" href="{% static 'home.css' %}" />
+  </head>
+  <body
+    class="bg-gray-200 min-h-screen flex flex-col gap-2 items-center justify-start p-4"
+  >
+    <div
+      class="navbar text-black flex flex-row bg-white items-center justify-between rounded-2xl shadow-2xl w-full p-4"
+    >
+      <!-- Left side -->
+      <h1 class="text-2xl font-bold text-gray-900">KentroCherma</h1>
+
+      <!-- Right side -->
+      <div class="flex gap-4">
+        <a href="{% url 'portfolio' %}" class="text-xl text-gray-900">
+          Portfolio
+        </a>
+        <a href="{% url 'logout' %}" class="text-xl text-gray-900"> Logout </a>
+
+        <a href="{% url 'home' %}" class="text-xl text-gray-900"> Home </a>
+        <a href="{% url 'search_views' %}" class="text-xl text-gray-900"> Search </a>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-6 py-10 items-center justify-center">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="bg-white rounded-2xl shadow-md p-6 self-start h-fit">
+          <div class="flex items-center gap-2 mb-8">
+            <svg
+              class="w-[24px] h-[24px] text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+              ></path>
+            </svg>
+            <h2 class="text-2xl font-bold text-gray-900">Top Gainers</h2>
+          </div>
+
+          <div class="space-y-6">
+            {% for stocks in gainers %}
+            <div
+              class="border rounded-xl p-4 shadow-sm hover:shadow-md transition"
+            >
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold text-gray-700">
+                  {{ stocks.ticker }}
+                </span>
+                <span class="text-green-600 font-bold">
+                  +{{ stocks.percent }}%
+                </span>
+              </div>
+
+              <div class="h-[100px] w-full">
+                <canvas class="gainerGraph w-full h-full"></canvas>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-6 self-start h-fit">
+          <div class="flex items-center gap-2 mb-8">
+            <svg
+              class="w-[24px] h-[24px] text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
+              ></path>
+            </svg>
+            <h2 class="text-2xl font-bold text-gray-900">Top Losers</h2>
+          </div>
+
+          <div class="space-y-6">
+            {% for stocks in losers %}
+            <div
+              class="border rounded-xl p-4 shadow-sm hover:shadow-md transition"
+            >
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold text-gray-700">
+                  {{ stocks.ticker }}
+                </span>
+                <span class="text-red-600 font-bold">
+                  {{ stocks.percent }}%
+                </span>
+              </div>
+
+              <div class="h-[100px] w-full">
+                <canvas class="loserGraph w-full h-full"></canvas>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Snaptrade -->
+        <!-- Snaptrade Wrapper -->
+        <div class="space-y-8">
+          <div class="w-full max-w-md">
+            <div
+              class="bg-blue-100 border border-blue-200 rounded-2xl p-6 shadow-sm"
+            >
+              <div class="text-center">
+                <h2 class="text-xl font-bold text-blue-800 mb-4">
+                  Connect to SnapTrade
+                </h2>
+
+                <p class="text-gray-700 mb-6">
+                  Link your brokerage account through SnapTrade to sync your
+                  portfolio, execute trades, and get real-time updates.
+                </p>
+              </div>
+
+              <div class="bg-white rounded-xl p-6 shadow-sm">
+                <h3 class="font-semibold text-gray-800 mb-3">Benefits:</h3>
+
+                <ul class="space-y-2 text-gray-600 mb-6">
+                  <li>✅ Real-time portfolio sync</li>
+                  <li>✅ Execute trades directly</li>
+                  <li>✅ Bank-level security</li>
+                </ul>
+
+                <a href="{% url 'snaptrade_link' %}" class="block">
+                  <button
+                    class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                    id="snaptrade-connect-btn"
+                  >
+                    Connect Your Brokerage
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl shadow-md p-6">
+            <h2 class="text-2xl font-bold text-black mb-6">BREAKING NEWS</h2>
+            <div class="space-y-4">
+              {% for article in news_information %}
+              <div
+                class="p-4 rounded-xl border-4 {% if article.sentiment_score > 0.4 %} border-green-500 bg-green-50 {% elif article.sentiment_score < -0.4 %} border-red-500 bg-red-50 {% else %} border-gray-400 bg-gray-50 {% endif %}"
+              >
+                <a
+                  href="{{ article.link }}"
+                  target="_blank"
+                  class="font-semibold text-gray-800 hover:underline block"
+                >
+                  {{ article.headline }}
+                </a>
+                <p class="text-sm text-gray-600 mt-2">
+                  {{ article.summary|truncatewords:20 }}
+                </p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% block scripts %}
+
+    <script>
+      const ticker_winner = {{label_ticker_winners | safe}};
+      const ticker_loser = {{label_ticker_losers | safe}};
+      const winner_percentage = {{percentage_winners | safe}};
+      const loser_percentage = {{percentage_losing | safe}};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+    <script src="{% static 'index.js' %}" defer></script>
+
+    {% endblock scripts %}
+  </body>
+</html>
