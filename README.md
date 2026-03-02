@@ -40,6 +40,7 @@ Portfolio performance tracking & Sharpe ratio calculation
 ![verification](verificationsystem.png)
 ![stockinfo](stockviews.png)
 ![search](SEARCH.png)
+![login](login.png)
 
 # ENV:
 CLIENT_ID=your_snaptrade_client_id
