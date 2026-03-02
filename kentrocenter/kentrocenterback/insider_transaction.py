@@ -55,17 +55,33 @@ def insider_recent_trader(stock_ticker: str):
     
     insider_trading_info =  finnhub_client.stock_insider_transactions(symbol=stock_ticker, to=today, _from=one_month_ago)
     for insider in insider_trading_info.get("data", []):
+        transaction_code = insider.get("transactionCode")
+        change = insider.get('change', 0)
+        
+        if transaction_code == "P":
+            action = "BUY"
+        elif transaction_code == 'S':
+            action = "SELL"
+        elif change > 0:
+            action = "BUY"
+        elif change < 0:
+            action = "SELL"
+        else:
+            action = "OTHER"
+        
+        
         insider_informtion.append({
             "name": insider.get("name"),
             "transactionDate": insider.get("transactionDate"),
             "share": insider.get("share"),
             "sharesTraded": insider.get("sharesTraded"),
             "sharePrice": insider.get("transactionPrice"),
+            "action": action
         })
         
     sorted_score = sorted(
         insider_informtion,
-        key= lambda x: (x["sharePrice"] * x["share"]),
+        key= lambda x: (datetime.strptime(x["transactionDate"], "%Y-%m-%d")),
         reverse=True
     )
     

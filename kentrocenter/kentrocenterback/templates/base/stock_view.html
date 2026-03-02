@@ -161,26 +161,61 @@
 
         <!-- Insider Traders recent activity -->
         <div class="bg-[#111C33] rounded-2xl p-6 border border-gray-800">
-          <!-- Add Insider header -->
-          <h1 class="rounded-2xl">👥 Recent Insider Transaction</h1>
+          <h2 class="text-lg font-semibold mb-5 flex items-center gap-2">
+            👥 Recent Insider Activity
+          </h2>
+
           {% for insider in insider_recent_trader %}
-          <div
-            class="bg-[#0F1B31] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition border-t 0 pt-4 flex flex-col"
-          >
-            <div class="flex flex-col justify-between">
-              <span class="text-gray-200">{{ insider.name }}</span>
-              <!-- Check if insider is buying or selling -->
-              <!-- Make sure to have it flex row for this one -->
-              <div class="flex flex-row gap-2">
-                <span class="text-neutral-500"
-                  >Shares: {{ insider.share }}</span
-                >
-                <span class="text-neutral-500"
-                  >@ ${{ insider.sharePrice }}</span
-                >
+          <div class="bg-[#0F1B31] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition mb-4">
+            
+            <!-- Top Row -->
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-gray-200 font-semibold text-sm tracking-wide">
+                  {{ insider.name }}
+                </p>
+                <p class="text-xs text-neutral-500 mt-1">
+                  {{ insider.transactionDate }}
+                </p>
+              </div>
+
+              <!-- Action Badge -->
+              {% if insider.action == "BUY" %}
+              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-400 border border-green-600">
+                BUY
+              </span>
+              {% elif insider.action == "SELL" %}
+              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-400 border border-red-600">
+                SELL
+              </span>
+              {% else %}
+              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-800 text-gray-400 border border-gray-600">
+                OTHER
+              </span>
+              {% endif %}
+            </div>
+
+            <!-- Bottom Row -->
+            <div class="flex justify-between items-center mt-4 text-sm">
+              <div class="flex gap-6">
+                <div>
+                  <p class="text-neutral-400 text-xs">Shares</p>
+                  <p class="text-gray-200 font-medium">
+                    {{ insider.share|floatformat:0 }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-neutral-400 text-xs">Price</p>
+                  <p class="text-gray-200 font-medium">
+                    ${{ insider.sharePrice }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+          {% empty %}
+          <p class="text-neutral-500 text-sm">No recent insider activity.</p>
           {% endfor %}
         </div>
 
