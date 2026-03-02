@@ -126,12 +126,6 @@ SnapTradeAPI_ACTIVATE  = SnapTrade(client_id=CLIENT_ID, consumer_key=SECRET_KEY)
 CLIENT_FINANCE = fmpsdk.gainers(apikey=FINANCIAL_API_KEY)
 
 
-CLIENT_ID = os.getenv('CLIENT_ID')
-SECRET_KEY = os.getenv('SECRET_KEY')
-snaptrade = SnapTrade(
-    client_id=CLIENT_ID,
-    consumer_key=SECRET_KEY,
-)
 
 
 # Create a autosign up to SnapTrade
@@ -550,9 +544,7 @@ def snaptrade_link_views_wealthsimple(request):
 
 
     if not profile.snaptrade_user_id or not profile.snaptrade_user_secret:
-        messages.error(request, "SnapTrade account not initialized.")
-        return redirect("home")
-
+        snaptrade_account_register(request.user)
     try:
         
         url_redirecter_to_kentrocherma = request.build_absolute_uri(reverse('snaptrade_callback'))
