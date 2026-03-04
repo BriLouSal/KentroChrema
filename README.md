@@ -43,10 +43,4 @@ Portfolio performance tracking & Sharpe ratio calculation
 ![login](login.png)
 ![signup](signup.png)
 
-# ENV:
-CLIENT_ID=your_snaptrade_client_id
-SNAP_TRADE_SECRET=your_snaptrade_secret
-TWELVEDATAAPI=your_twelvedata_key
-FINNHUB_KEY=your_finnhub_key
-ALPACA=your_alpaca_key
-ALPACA_SECRET_KEY=your_alpaca_secret
+
