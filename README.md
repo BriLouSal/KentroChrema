@@ -1,15 +1,15 @@
 
 # Project Title: KentroCherma
+URL: https://kentrochrema-private-production.up.railway.app/
 
 # AI-Powered Retail Equity Intelligence & Broker Aggregation Platform
-
 KentroCherma is a Python-powered centralized investment platform that allows users to have their investments into one app, allowing themselves to track their investment without having to check multiple platform that is made possible with SnapTrade. Investors will be able to access investment information powered by Alpaca and TwleveData, and check how bullish and risky the stock is with the help of TA library. Furthermore, we've used finnhub API to create news sentiment included with VaderSentiment
 
 # Backend: 
 * We've used Django for this project, as I love the framework and its community support, and I would be able to connect my API to JS seamlessly with Django's url routing via its client-server architecture, which makes it easy for developers such as me to visualize data from Alpaca, etc. Furthermore, Django's built in JSON serializer makes this plan much more easier. 
 
 # Authentication System:
-*We  added django all-authentication to allow users to sign up with Google which will still register them from Snaptrade. We also used verification code system as a method for users to sign up that'll prevent duplicate users. Additionally, we've used Secret library to ensure that our verification system is not in ruins as random.randint could be easily reveresed engineered and we want to prevent that case. We also added rate limit on the login system that tracks how many people try to guess the email and their ip address. This is made possible by django-axes.
+ We  added django all-authentication to allow users to sign up with Google which will still register them from Snaptrade. We also used verification code system as a method for users to sign up that'll prevent duplicate users. Additionally, we've used Secret library to ensure that our verification system is not in ruins as random.randint could be easily reveresed engineered and we want to prevent that case. We also added rate limit on the login system that tracks how many people try to guess the email and their ip address. This is made possible by django-axes.
 
 #Core backend responsibilities:
 Secure authentication & verification
@@ -43,10 +43,4 @@ Portfolio performance tracking & Sharpe ratio calculation
 ![login](login.png)
 ![signup](signup.png)
 
-# ENV:
-CLIENT_ID=your_snaptrade_client_id
-SNAP_TRADE_SECRET=your_snaptrade_secret
-TWELVEDATAAPI=your_twelvedata_key
-FINNHUB_KEY=your_finnhub_key
-ALPACA=your_alpaca_key
-ALPACA_SECRET_KEY=your_alpaca_secret
+
