@@ -128,9 +128,35 @@
              
 
             </div>
-        {% block scripts %}
 
-        <script src="{% static 'index.js' %}"></script>
-        {% endblock scripts %}
+      {% block scripts %}
+<script>
+console.log("INLINE SCRIPT RUNNING");
+console.log(window.djangoMessages);
+
+if (window.djangoMessages && window.djangoMessages.length > 0) {
+
+    window.djangoMessages.forEach(msg => {
+
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: msg.type,
+            title: msg.text,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+    });
+
+}
+</script>
+      
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script src="{% static 'js/login.js' %}"></script>z
+
+
+      {% endblock scripts %}
     </body>
 </html>

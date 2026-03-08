@@ -145,33 +145,17 @@ CLIENT_FINANCE = fmpsdk.gainers(apikey=FINANCIAL_API_KEY)
 
 def dailyWinners():
     try:
-        s = Screener()
-        stocks = s.get_screeners(['day_gainers'], count=5)
-        gainers_list = stocks.get('day_gainers', {}).get('quotes', [])
-        sorted_gainers = sorted(
-            gainers_list, 
-            key=lambda x: x.get('regularMarketChangePercent', 0), 
-            reverse=True
-        )
+        url = f"https://finnhub.io/api/v1/stock/market-list/gainers?token={API_KEY}"
+        data = requests.get(url).json()
 
-        # Prepare it for JSON dump and call it in search views.py
         result = []
-        for symbols in sorted_gainers:
-            symbol = symbols.get('symbol')
-            percentage = symbols.get('regularMarketChangePercent')
-            price = Ticker(symbol)
-
-            hist = price.history(period='1d', interval='15m').reset_index()
-            price = hist["close"].tolist()
+        for stock in data[:5]:
             result.append({
-                'ticker':  symbol,
-                'price': price,
-                'percent': round(float(percentage), 2)
-
+                "ticker": stock["symbol"],
+                "percent": stock["percentChange"],
+                "price": stock["lastPrice"]
             })
-            
-
-    
+        print(result)
         return result
     except Exception as e:
         return []  # Return an empty list in case of any error, such as that we can raise API limit error or something like that, so we can just return an empty list and it won't break the website, and we can also add a message to the user that there's a issue with the API and that they should try again later.
@@ -611,7 +595,7 @@ def loginpage(request):
         else:
             # Invalid password case
             messages.error(request, "Invalid password.")
-            return render(request, 'base/login.html') # Stay here
+            return redirect( 'login') # Stay here
             
     return render(request, 'base/authentication/login.html')
 

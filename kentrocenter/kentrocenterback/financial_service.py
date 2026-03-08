@@ -3,6 +3,7 @@ import twelvedata
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from twelvedata import TDClient
+from django.core.cache import cache
 from snaptrade_client import SnapTrade
 
 
@@ -51,7 +52,11 @@ def stock_data(stock_ticker: str):
     twelvedata_client = TDClient(apikey=TWELVEDATA_API_KEY)
     
     try:
-        
+        cache_key = f"stock_data:{stock_ticker}"
+        cached = cache.get(cache_key)
+
+        if cached:
+            return cached
         ticker_data = twelvedata_client.time_series(
             symbol=stock_ticker.upper(),
             interval="5min",
@@ -114,7 +119,6 @@ def dailyWinners():
 
             })
             
-
     
         return result
     except Exception as e:

@@ -1,5 +1,20 @@
 const canvases = document.querySelectorAll('.gainerGraph')
 const losing_canvases = document.querySelectorAll('.loserGraph')
+const background = document.getElementById('home-bg')
+document.addEventListener("DOMContentLoaded", function () {
+
+  VANTA.NET({
+    el: "#home-bg",
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    color: 0xffffff,
+    backgroundAlpha: 0,
+    points: 10,
+    maxDistance: 20
+  });
+
+});
 
 canvases.forEach((canvas, index) => {
 
