@@ -1,6 +1,6 @@
 
 # Project Title: KentroCherma
-URL: https://kentrochrema-private-production.up.railway.app/
+URL: https://www.kentrocherma.me/
 
 # AI-Powered Retail Equity Intelligence & Broker Aggregation Platform
 KentroCherma is a Python-powered centralized investment platform that allows users to have their investments into one app, allowing themselves to track their investment without having to check multiple platform that is made possible with SnapTrade. Investors will be able to access investment information powered by Alpaca and TwleveData, and check how bullish and risky the stock is with the help of TA library. Furthermore, we've used finnhub API to create news sentiment included with VaderSentiment
